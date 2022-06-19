@@ -4,7 +4,8 @@ body{
 }
 
 code{
-	background-color: #ccc;
+	/* background-color: #ccc; */
+	font-size: 1rem!important;
 }
 
 a{
@@ -13,6 +14,9 @@ a{
 /* a:visited {
 	color: #81181c;
 } */
+pre {
+	background-color: #ddd;
+}
 
 @media (prefers-color-scheme: dark) {
 	body{
@@ -21,22 +25,38 @@ a{
 	}
 
 	code{
-		background-color: #444;
+		/* background-color: #444; */
 	}
+
+	pre {
+		background-color: #333;
+	}
+}
+
+html {
+	-webkit-text-size-adjust:250%;
+	text-size-adjust:250%;
 }
 
 body{
 	font-family: sans-serif;
 	font-weight: 200;
-	padding: 30px;
-	max-width: 800px;
+	padding: 1rem;
+	max-width: 1000px;
 	margin: auto;
 	padding-bottom: 5rem;
 }
 
-code{
-	box-sizing: border-box;
-	font-family: monospace;
+
+
+
+pre {
+	padding: 1rem;
+	margin-left: 20px;
+	margin-right: 20px;
+	border-radius: 10px;
+	overflow: scroll;
+	/* border: solid 1px white; */
 }
 
 h1{
@@ -51,12 +71,13 @@ h2{
 	font-size: 2rem;
 	border-bottom: 1px solid;
 	color: #CA0C13;
-	margin-top: 5rem;
+	margin-top: 4rem;
 	font-weight: 100;
 }
 
 h3 {
 	font-weight: 400;
+	margin-top: 2rem;
 }
 h3::after {
 	/* content: ':' */

@@ -35,7 +35,7 @@ def format_and_build(entries):
 	for entry in entries:
 		formatted = __format_entry(entry)
 		filename = entry[0]['filename']
-		new_filename = filename.replace('src', 'build').replace('.md', '.html')
+		new_filename = filename.replace('src', 'build').replace('.md', '/index.html')
 		output_file = Path(new_filename)
 		output_file.parent.mkdir(exist_ok=True, parents=True)
 		output_file.write_text(formatted)

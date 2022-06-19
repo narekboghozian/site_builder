@@ -3,7 +3,7 @@ All lines until first '#' line (title) will be ignored or used as metadata.
 Metadata is in the format:
 /<item> <value> // <comment>
 
-Content after a '//' will be considered as a comment.
+Content after a ' //' will be considered as a comment. ('//' without preceding whitespace will not count as a comment)
 
 So an example would be:
 /date 12.31.2020

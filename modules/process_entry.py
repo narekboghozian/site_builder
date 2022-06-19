@@ -22,11 +22,12 @@ def __process_metadata(x):
 
 	required_inputs = [
 		'date',
-		'title'
+		'title',
+		'link',
+		'description'
 		]
 	optional_inputs = [
-		'toc',
-		'description'
+		'toc'
 	]
 
 	metadata = {}
@@ -34,7 +35,7 @@ def __process_metadata(x):
 	lines = x.split('\n')
 	for line in lines:
 		if len(line) >3 and line[0] == '/':
-			uncomment = line.split('//')[0].split()
+			uncomment = line.split(' //')[0].split()
 			cmd = uncomment[0][1:]
 			assert (cmd in required_inputs or cmd in optional_inputs), "Invalid input"
 			metadata[cmd] = " ".join(uncomment[1:])
@@ -42,7 +43,8 @@ def __process_metadata(x):
 	return metadata
 
 def __process_content(x):
-	return markdown.markdown(x)
+	html = markdown.markdown(x)
+	return html.replace('<a href=', '<a target="_blank" href=')
 
 def process_entry(filename):
 	raw = __open_markdown_file(filename)
