@@ -1,4 +1,4 @@
-body{
+html{
 	color: black;
 	background-color: white;
 }
@@ -19,7 +19,7 @@ pre {
 }
 
 @media (prefers-color-scheme: dark) {
-	body{
+	html{
 		color: white;
 		background-color: #161616;
 	}
