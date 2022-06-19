@@ -1,19 +1,21 @@
 All lines until first '#' line (title) will be ignored or used as metadata.
 
 Metadata is in the format:
-/<item>=<value>
+/<item> <value> // <comment>
 
-Without spaces. After the <value>, content after a space can be added to make a comment. Spaces in quotes are considered as part of the quoted string. (It's good practice to put // before any comments to make them visually distinct)
+Content after a '//' will be considered as a comment.
 
 So an example would be:
-/date=12.31.2020
+/date 12.31.2020
 
 Required parameters:
-/date=12.31.2020 // 'date' in the 'mm.dd.yyyy' format
+/date 12.31.2020 // 'date' in the 'mm.dd.yyyy' format
+/title Document Title
 
 Optional parameters are:
-/toc=true // Table of contents. Default is true
-/description="This is a description that if given, will override the defualt usage of the first <p> after the first <h1> title element"
+/toc true // Table of contents. Default is true
+/description This is a description that if given, will override the defualt usage of the first <p> after the first <h1> title element
+/tag tag1 tag2 tag3 etc // add tags like this
 
 # Example Page Title
 
