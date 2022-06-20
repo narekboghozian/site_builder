@@ -5,6 +5,8 @@ __pycache__
 **/build/*
 **/src/*
 
+config.json
+
 **/*_nogit*
 **/*_nogit/**
 
