@@ -1,11 +1,19 @@
+:root {
+	--text-color: black;
+	--bg-color: white;
+	--accent-red: #CA0C13;
+}
+
 html{
-	color: black;
-	background-color: white;
+	/* color: black;
+	background-color: white; */
+	color: var(--text-color);
+	background-color: var(--bg-color);
 }
 
 code{
 	/* background-color: #ccc; */
-	font-size: 1rem!important;
+	font-size: 0.75rem!important;
 }
 
 a{
@@ -19,10 +27,15 @@ pre {
 }
 
 @media (prefers-color-scheme: dark) {
-	html{
+	:root{
+		--text-color: white;
+		--bg-color: #161616;
+	}
+
+	/* html{
 		color: white;
 		background-color: #161616;
-	}
+	} */
 
 	code{
 		/* background-color: #444; */
@@ -70,7 +83,7 @@ h1{
 h2{
 	font-size: 2rem;
 	border-bottom: 1px solid;
-	color: #CA0C13;
+	color: var(--accent-red);
 	margin-top: 4rem;
 	font-weight: 100;
 }
@@ -82,3 +95,117 @@ h3 {
 h3::after {
 	/* content: ':' */
 }
+
+li {
+	margin-top: 0.2rem;
+}
+
+ul.checklist > li {
+	list-style: none;
+
+}
+
+ul.checklist > li > input[type='checkbox']:disabled{
+	appearance: none;
+	background-color: rgba(0,0,0,0);
+	margin: 0;
+	margin-right: 6px;
+	font: inherit;
+	color: currentColor;
+	width: 0.7rem;
+	height: 0.7rem;
+	border: 0.1rem solid currentColor;
+	border-radius: 0.15em;
+	/* transform: translateY(-0.075em); */
+}
+
+ul.checklist > li > input[type='checkbox']:checked {
+	background-color: var(--text-color);
+}
+
+ul.checklist {
+	padding-inline-start: 20px;
+}
+
+
+
+
+/* Breadcrumbs */
+
+/* Style the list */
+ul.breadcrumb {
+  padding: 0;
+  list-style: none;
+}
+/* Display list items side by side */
+ul.breadcrumb li {
+  display: inline;
+}
+/* Add a slash symbol (/) before/behind each list item */
+ul.breadcrumb li+li:before {
+  padding: 8px;
+  color: var(--text-color);
+  content: ">\00a0";
+}
+/* Add a color to all links inside the list */
+ul.breadcrumb li a {
+  /* color: #0275d8; */
+  text-decoration: none;
+}
+/* Add a color on mouse-over */
+ul.breadcrumb li a:hover {
+  color: var(--accent-red);
+  /* text-decoration: underline; */
+}
+
+
+
+/* Home Page */
+.post-entry{
+	padding: 1rem;
+	border: 1px var(--text-color) solid;
+	margin: 1rem;
+}
+.post-entry-header{
+	width: 100%;
+}
+.post-entry-title{
+	font-size: 1.3rem;
+}
+.post-entry-date{
+	float: right;
+	font-size: 1rem;
+}
+.post-entry-desc{
+	width: calc(100% - 3rem);
+	margin-top: 1rem;
+	padding-left: 1.5rem;
+}
+.post-entry > *, .post-entry > * > * {
+	display: inline-block;
+}
+a.post_section{
+	text-decoration: none;
+}
+.home-info{
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+#welcome {
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*  */
