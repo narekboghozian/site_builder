@@ -1,6 +1,8 @@
 from pathlib import Path
 import markdown
+from datetime import datetime as dt
 import os
+import json
 
 
 def __make_link(entry, root):
@@ -42,6 +44,10 @@ def __fix_entry_type(entry_type):
 		entry_type = swaps[entry_type.lower()]
 	return entry_type
 
+def __date_to_monthyear(raw_val):
+	time_val = dt.strptime(raw_val, "%m.%d.%Y")
+	new_val = time_val.strftime("%b %Y")
+	return new_val
 
 def __prep_sections(entries, root = '/'):
 
@@ -54,7 +60,7 @@ def __prep_sections(entries, root = '/'):
 			date = entry[0]['date']
 			link = __make_link(entry, root)
 			new_item = {
-				'date': date,
+				'date': __date_to_monthyear(date),
 				'title': title,
 				'desc': desc,
 				'link': link
@@ -75,7 +81,7 @@ def __make_sections(entries, root = '/'):
 
 	type_names = {
 		"project": "Projects",
-		"guide": "Cheat Sheets",
+		"guide": "Guides",
 		"project_idea": "Project Ideas",
 		"blog": "Blog"
 	}
@@ -135,6 +141,8 @@ def make_home_page(entries, root):
 
 	template = template.format(entry = combined_sections)
 
+
+	root = json.load(open('config.json'))['build_folder']
 	filename = os.path.join(root, 'index.html')
 	output_file = Path(filename)
 	output_file.parent.mkdir(exist_ok=True, parents=True)
