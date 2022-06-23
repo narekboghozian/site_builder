@@ -87,7 +87,7 @@ def format_and_build(entries, root = '/'):
 def main():
 	entries = []
 	root = json.load(open('config.json'))['build_folder'] # for atom-live-server
-	# root = '/'
+	root = '/'
 	files = get_files('src')
 	for file in files:
 		entries.append(process_entry(file))
