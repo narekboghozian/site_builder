@@ -166,6 +166,9 @@ ul.breadcrumb li a:hover {
 	border: 1px var(--text-color) solid;
 	margin: 1rem;
 }
+.post-entry:hover{
+
+}
 .post-entry-header{
 	width: 100%;
 }
@@ -188,8 +191,11 @@ a.post_section{
 	text-decoration: none;
 }
 .home-info{
-	padding-left: 1rem;
-	padding-right: 1rem;
+	padding-left: 1.4rem;
+	padding-right: 1.4rem;
+}
+.italic {
+	font-style: italic;
 }
 #welcome {
 	padding-left: 1rem;
@@ -200,6 +206,14 @@ a.post_section{
 
 
 
+
+img {
+	margin-left: 10%;
+	margin-right: 10%;
+	margin-bottom: 3rem;
+	margin-top: 3rem;
+	width: 80%;
+}
 
 
 

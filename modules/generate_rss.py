@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from datetime import datetime as dt
 import os
+import json
 
 # Allowable values in rss xml are:
 # author
@@ -61,8 +62,10 @@ def __process_json_item(raw_key, raw_val):
 def generate_rss(item_list):
 	'''Convert list of dicts to RSS XML'''
 
-	output_dir = "build/rss"
+	output_dir = json.load(open('config.json'))['build_folder']
 	filename = "rss.xml"
+	# filename = "feed/rss.xml"
+	filename = "rss"
 	main_title = "Nareks Blog"
 	main_link = "http://www.narekb.com"
 	main_description = "Nareks Blog"
