@@ -63,7 +63,7 @@ def generate_rss(item_list):
 	'''Convert list of dicts to RSS XML'''
 
 	output_dir = json.load(open('config.json'))['build_folder']
-	filename = "rss"
+	filename = "rss.xml"
 	main_title = "Nareks Blog"
 	main_link = "http://www.narekb.com"
 	main_description = "Nareks Blog"

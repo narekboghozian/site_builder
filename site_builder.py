@@ -2,6 +2,7 @@ from modules.process_entry import process_entry
 from modules.generate_rss import generate_rss
 from modules.make_breadcrumbs import make_breadcrumbs
 from modules.make_home_page import make_home_page
+from modules.copy_css import copy_css
 from pathlib import Path
 import json
 import os
@@ -94,6 +95,7 @@ def main():
 	format_and_build(entries, root)
 	make_home_page(entries, root)
 	generate_rss(entries)
+	copy_css()
 	return 0
 
 if __name__ == '__main__':
