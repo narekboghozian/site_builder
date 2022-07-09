@@ -56,6 +56,14 @@ def __date_to_monthyear(raw_val):
 	new_val = time_val.strftime("%b %Y")
 	return new_val
 
+def __date_to_timestamp(raw_val):
+	time_val = dt.strptime(raw_val, "%m.%d.%Y")
+	new_val = time_val.timestamp()
+	return new_val
+
+def __getEntryTimestamp(entry):
+	return entry['timestamp']
+
 def __prep_sections(entries, root = '/'):
 
 	sorted_entries = {}
@@ -72,11 +80,16 @@ def __prep_sections(entries, root = '/'):
 				'title': title,
 				'desc': desc,
 				'link': link,
-				'thumbnail': thumbnail
+				'thumbnail': thumbnail,
+				'timestamp': __date_to_timestamp(date)
 				}
 			if etype not in sorted_entries:
 				sorted_entries[etype] = []
 			sorted_entries[etype].append(new_item)
+
+	# actually sort them
+	for etype in sorted_entries:
+		sorted_entries[etype] = sorted_entries[etype].sort(key=__getEntryTimestamp)
 
 	return sorted_entries
 
