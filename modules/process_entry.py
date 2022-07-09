@@ -25,7 +25,8 @@ def __process_metadata(x):
 		'title',
 		'link',
 		'description',
-		'type'
+		'type',
+		'thumbnail'
 		]
 	optional_inputs = [
 		'toc'

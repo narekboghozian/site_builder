@@ -1,7 +1,9 @@
 :root {
 	--text-color: black;
 	--bg-color: white;
-	--accent-red: #CA0C13;
+	--bg-color-post: #e8e8e8;
+	--bg-color-post-hover: #ccc;
+	--accent-color: #CA0C13;
 }
 
 html{
@@ -29,7 +31,11 @@ pre {
 @media (prefers-color-scheme: dark) {
 	:root{
 		--text-color: white;
-		--bg-color: #161616;
+		/* --bg-color: #161616; */
+		--bg-color: #111;
+		/* --bg-color: black; */
+		--bg-color-post: #111;
+		--bg-color-post-hover: #222;
 	}
 
 	/* html{
@@ -83,7 +89,7 @@ h1{
 h2{
 	font-size: 2rem;
 	border-bottom: 1px solid;
-	color: var(--accent-red);
+	color: var(--accent-color);
 	margin-top: 4rem;
 	font-weight: 100;
 }
@@ -154,20 +160,18 @@ ul.breadcrumb li a {
 }
 /* Add a color on mouse-over */
 ul.breadcrumb li a:hover {
-  color: var(--accent-red);
+  color: var(--accent-color);
   /* text-decoration: underline; */
 }
 
 
 
 /* Home Page */
-.post-entry{
+
+/* .post-entry{
 	padding: 1rem;
 	border: 1px var(--text-color) solid;
 	margin: 1rem;
-}
-.post-entry:hover{
-
 }
 .post-entry-header{
 	width: 100%;
@@ -187,12 +191,144 @@ ul.breadcrumb li a:hover {
 .post-entry > *, .post-entry > * > * {
 	display: inline-block;
 }
+ */
+
+
+
+/* Basic Posts */
+
+:root {
+}
+
+.basic-post-entry{
+	padding: 1rem;
+	border: 1px var(--text-color) solid;
+	margin: 1rem;
+}
+.basic-post-text{
+	/* float: left; */
+	display: inline-block;
+	width: 100%;
+}
+.basic-post-entry-header{
+	/* width: 80%; */
+	width: 100%;
+	float: left;
+}
+.basic-post-entry-title{
+	font-size: 1.3rem;
+	float: left;
+}
+.basic-post-entry-date{
+	float: right;
+	font-size: 1rem;
+}
+.basic-post-entry-desc{
+	width: calc(100% - 3rem);
+	margin-top: 1rem;
+	padding-left: 1.5rem;
+}
+.basic-post-entry > *, .basic-post-entry > * > * {
+	display: inline-block;
+}
+
+
+
+/* Guides */
+
+:root {
+	--guide-post-title-font-size: 1.3rem;
+	--guide-post-desc-font-size: 0.9rem;
+}
+
+.guide-post-entry{
+	padding: 1rem;
+	border: 1px var(--text-color) solid;
+	margin: 1rem;
+}
+.guide-post-entry-title{
+	font-size: var(--guide-post-title-font-size);
+	float: left;
+	margin-right: 2rem;
+}
+.guide-post-entry-desc{
+	/* width: ; */
+	font-size: var(--guide-post-desc-font-size);
+	padding-top: calc(var(--guide-post-title-font-size) - var(--guide-post-desc-font-size));
+}
+.guide-post-entry > *, .guide-post-entry > * > * {
+	display: inline-block;
+}
+
+
+
+/* Projects */
+
+
+:root {
+	--proj-post-thumbnail-width: 4rem;
+	--proj-post-thumbnail-margin: 1rem;
+	--proj-post-padding: 1rem;
+}
+
+.proj-post-entry{
+	border: 1px var(--text-color) solid;
+	margin: 1rem;
+	min-height: calc(var(--proj-post-thumbnail-width) + var(--proj-post-thumbnail-margin) + var(--proj-post-padding));
+}
+.proj-post-text{
+	padding: var(--proj-post-padding);
+	width: calc(100% - var(--proj-post-thumbnail-width) - 2 * var(--proj-post-thumbnail-margin) - 2 * var(--proj-post-padding));
+}
+.proj-post-entry-header{
+	/* width: 80%; */
+	width: 100%;
+	float: left;
+}
+.proj-post-entry-title{
+	font-size: 1.3rem;
+	float: left;
+}
+.proj-post-entry-date{
+	float: right;
+	font-size: 1rem;
+}
+.proj-post-entry-desc{
+	width: calc(100% - 3rem);
+	margin-top: 1rem;
+	/* padding-left: 1.5rem; */
+}
+.proj-post-entry > *, .proj-post-entry > * > * {
+	display: inline-block;
+}
+img.proj-thumbnail {
+	margin: ;
+	width: 100%;
+	height: 100%;
+}
+div.proj-thumbnail {
+	width: var(--proj-post-thumbnail-width);
+	float: left;
+	margin-right: var(--proj-post-thumbnail-margin);
+	margin: var(--proj-post-padding);
+}
+/* Images should be 165x165 with quality of 1 */
+
+
+
+
+
+
+
+
+
 a.post_section{
 	text-decoration: none;
 }
 .home-info{
 	padding-left: 1.4rem;
 	padding-right: 1.4rem;
+	font-size: 1.1rem;
 }
 .italic {
 	font-style: italic;
@@ -210,13 +346,50 @@ a.post_section{
 
 
 
-img {
+img:not(.proj-thumbnail) {
 	margin-left: 10%;
 	margin-right: 10%;
 	margin-bottom: 3rem;
 	margin-top: 3rem;
 	width: 80%;
 }
+
+
+/* .cuntain{
+	float: right;
+	width: 80%;
+}
+.post-entry-title{
+	width: 50%;
+	margin: 0;
+}
+
+.post-entry-date{
+	margin: 0;
+} */
+
+
+.post-entry{
+	background-color: var(--bg-color-post)!important;
+	transition: background---bg-color-postcolor 0.1s ease-in-out;
+}
+.post-entry:hover{
+	background-color: var(--bg-color-post-hover)!important;
+	/* transition: 0.1s ease-in-out;
+	transform: scale(1.03); */
+}
+
+
+
+embed[type="application/pdf"] {
+	width: 80%;
+	margin-left: 10%;
+	height: 600px;
+}
+
+
+
+
 
 
 

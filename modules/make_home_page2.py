@@ -1,6 +1,7 @@
 from pathlib import Path
 import markdown
 from datetime import datetime as dt
+from modules.make_breadcrumbs import make_breadcrumbs
 import os
 import json
 
@@ -10,7 +11,10 @@ def __make_link(entry, root):
 	if root[0] != '/':
 		root = '/' + root
 
-	path_items = entry[0]['filename'].replace('.md','').split('/')
+	if type(entry) == list:
+		path_items = entry[0]['filename'].replace('.md','').split('/')
+	else:
+		path_items = entry.meta['filename'].replace('.md','').split('/')
 	# path = [('Home', '/')]
 	# path = [('Home', '/narekb/')] # for debugging when using atom-live-server
 	# path = [('Home', root)]
@@ -21,7 +25,10 @@ def __make_link(entry, root):
 		link = os.path.join(link, item)
 		name = item.capitalize()
 		if item == path_items[-1]:
-			name = entry[0]['title']
+			if type(entry) == list:
+				name = entry[0]['title']
+			else:
+				name = entry.meta['title']
 		name = name.replace(' ', '&nbsp')
 		path.append((name, link))
 	return link
@@ -55,11 +62,11 @@ def __prep_sections(entries, root = '/'):
 
 	for etype in entries:
 		for entry in entries[etype]:
-			desc = entry[0]['description']
-			title = entry[0]['title']
-			date = entry[0]['date']
+			desc = entry.meta['description']
+			title = entry.meta['title']
+			date = entry.meta['date']
 			link = __make_link(entry, root)
-			thumbnail = entry[0]['thumbnail']
+			thumbnail = entry.meta['thumbnail']
 			new_item = {
 				'date': __date_to_monthyear(date),
 				'title': title,
@@ -113,7 +120,6 @@ def __basic_proc(sorted_entries_etype):
 		)
 	return finished_entries
 
-
 def __make_sections(entries, root = '/'):
 
 	sorted_entries = __prep_sections(entries, root)
@@ -143,10 +149,67 @@ def __make_sections(entries, root = '/'):
 	finished_entries = {}
 	finished_listings = {}
 
+	# Make section pages... probably shouldn't go here
+	for etype in sorted_entries:
+		finished_page_entries = ""
+		entry_template_paths = {
+			"basic"	: "templates/basic_entry_template.html",
+			"guide" : "templates/guide_entry_template.html",
+			"proj" 	: "templates/proj_entry_template.html"
+		}
+		if etype not in entry_template_paths:
+			entry_template_path = entry_template_paths['basic']
+		else:
+			entry_template_path = entry_template_paths[etype]
+		entry_template = open(entry_template_path).read()
+		section_page_template_path = 'templates/section_page_template.html'
+		section_page_template = open(section_page_template_path).read()
+		for entry in sorted_entries[etype]:
+			finished_page_entries += entry_template.format(
+				title = entry['title'],
+				date = entry['date'],
+				description = entry['desc'],
+				link = entry['link']
+			)
+
+
+		crumbs_id = "{breadcrumbs}"
+		if crumbs_id in section_page_template:
+			path_items = ['Home', etype_links[etype]]
+			# path = [('Home', '/')]
+			# path = [('Home', '/narekb/')] # for debugging when using atom-live-server
+			path = [('Home', root)]
+			link = path[0][1]
+			for item in path_items[1:]:
+				link = os.path.join(link, item)
+				name = item.capitalize()
+				if item == path_items[-1]:
+					name = type_names[etype]
+				name = name.replace(' ', '&nbsp')
+				path.append((name, link))
+			section_page_template = section_page_template.replace(crumbs_id, make_breadcrumbs(path))
+		finished_page = section_page_template.format(
+			title = type_names[etype],
+			section = type_names[etype],
+			entry = finished_page_entries
+			# link = __make_link([{'filename':"src/", 'title': etype_links[etype]}], root)
+		)
+
+
+
+		page_root = json.load(open('config.json'))['build_folder']
+		page_filename = os.path.join(page_root, etype_links[etype], 'index.html')
+		page_output_file = Path(page_filename)
+		page_output_file.parent.mkdir(exist_ok=True, parents=True)
+		page_output_file.write_text(finished_page)
+
+
+
 	# for etype in type_names:
 	# 	if etype in sorted_entries:
 	# 		finished_entries[etype] = ""
 	for etype in sorted_entries:
+
 		finished_entries[etype] = etype_processors[etype](sorted_entries[etype])
 		# for entry in sorted_entries[etype]:
 		# 	finished_entries[etype] += entry_template.format(
@@ -181,8 +244,8 @@ def make_home_page(entries, root):
 	}
 
 	for entry in entries:
-		assert 'type' in entry[0], "Entry does not have type"
-		entry_type = __fix_entry_type(entry[0]['type'])
+		assert 'type' in entry.meta, "Entry does not have type"
+		entry_type = __fix_entry_type(entry.meta['type'])
 		sorted_entries[entry_type].append(entry)
 
 	sections = __make_sections(sorted_entries, root)
