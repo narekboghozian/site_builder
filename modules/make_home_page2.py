@@ -89,7 +89,9 @@ def __prep_sections(entries, root = '/'):
 
 	# actually sort them
 	for etype in sorted_entries:
-		sorted_entries[etype] = sorted_entries[etype].sort(key=__getEntryTimestamp)
+		print(sorted_entries[etype])
+		# sorted_entries[etype] = sorted_entries[etype].sort(key=__getEntryTimestamp)
+		sorted_entries[etype].sort(key=__getEntryTimestamp, reverse=True)
 
 	return sorted_entries
 
@@ -168,7 +170,7 @@ def __make_sections(entries, root = '/'):
 		entry_template_paths = {
 			"basic"	: "templates/basic_entry_template.html",
 			"guide" : "templates/guide_entry_template.html",
-			"proj" 	: "templates/proj_entry_template.html"
+			"project" 	: "templates/proj_entry_template.html"
 		}
 		if etype not in entry_template_paths:
 			entry_template_path = entry_template_paths['basic']
@@ -177,14 +179,14 @@ def __make_sections(entries, root = '/'):
 		entry_template = open(entry_template_path).read()
 		section_page_template_path = 'templates/section_page_template.html'
 		section_page_template = open(section_page_template_path).read()
-		for entry in sorted_entries[etype]:
-			finished_page_entries += entry_template.format(
-				title = entry['title'],
-				date = entry['date'],
-				description = entry['desc'],
-				link = entry['link']
-			)
-
+		# for entry in sorted_entries[etype]:
+		# 	finished_page_entries += entry_template.format(
+		# 		title = entry['title'],
+		# 		date = entry['date'],
+		# 		description = entry['desc'],
+		# 		link = entry['link']
+		# 	)
+		finished_page_entries = etype_processors[etype](sorted_entries[etype])
 
 		crumbs_id = "{breadcrumbs}"
 		if crumbs_id in section_page_template:

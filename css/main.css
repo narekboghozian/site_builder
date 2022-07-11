@@ -262,55 +262,55 @@ ul.breadcrumb li a:hover {
 
 
 
-/* Projects */
+/* entry_small_thumbnail */
 
 
 :root {
-	--proj-post-thumbnail-width: 4rem;
-	--proj-post-thumbnail-margin: 1rem;
-	--proj-post-padding: 1rem;
+	--small_thumbnail-thumbnail-width: 4rem;
+	--small_thumbnail-thumbnail-margin: 1rem;
+	--small_thumbnail-padding: 1rem;
 }
 
-.proj-post-entry{
+.small_thumbnail-entry{
 	border: 1px var(--text-color) solid;
 	margin: 1rem;
-	min-height: calc(var(--proj-post-thumbnail-width) + var(--proj-post-thumbnail-margin) + var(--proj-post-padding));
+	min-height: calc(var(--small_thumbnail-thumbnail-width) + var(--small_thumbnail-thumbnail-margin) + var(--small_thumbnail-padding));
 }
-.proj-post-text{
-	padding: var(--proj-post-padding);
-	width: calc(100% - var(--proj-post-thumbnail-width) - 2 * var(--proj-post-thumbnail-margin) - 2 * var(--proj-post-padding));
+.small_thumbnail-text{
+	padding: var(--small_thumbnail-padding);
+	width: calc(100% - var(--small_thumbnail-thumbnail-width) - 2 * var(--small_thumbnail-thumbnail-margin) - 2 * var(--small_thumbnail-padding));
 }
-.proj-post-entry-header{
+.small_thumbnail-entry-header{
 	/* width: 80%; */
 	width: 100%;
 	float: left;
 }
-.proj-post-entry-title{
+.small_thumbnail-entry-title{
 	font-size: 1.3rem;
 	float: left;
 }
-.proj-post-entry-date{
+.small_thumbnail-entry-date{
 	float: right;
 	font-size: 1rem;
 }
-.proj-post-entry-desc{
+.small_thumbnail-entry-desc{
 	width: calc(100% - 3rem);
 	margin-top: 1rem;
 	/* padding-left: 1.5rem; */
 }
-.proj-post-entry > *, .proj-post-entry > * > * {
+.small_thumbnail-entry > *, .small_thumbnail-entry > * > * {
 	display: inline-block;
 }
-img.proj-thumbnail {
+img.small_thumbnail {
 	margin: ;
 	width: 100%;
 	height: 100%;
 }
-div.proj-thumbnail {
-	width: var(--proj-post-thumbnail-width);
+div.small_thumbnail {
+	width: var(--small_thumbnail-thumbnail-width);
 	float: left;
-	margin-right: var(--proj-post-thumbnail-margin);
-	margin: var(--proj-post-padding);
+	margin-right: var(--small_thumbnail-thumbnail-margin);
+	margin: var(--small_thumbnail-padding);
 }
 /* Images should be 165x165 with quality of 1 */
 
@@ -346,7 +346,7 @@ a.post_section{
 
 
 
-img:not(.proj-thumbnail) {
+img:not(.small_thumbnail) {
 	margin-left: 10%;
 	margin-right: 10%;
 	margin-bottom: 3rem;
