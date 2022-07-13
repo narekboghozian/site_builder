@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta name="robots" content="noindex">
+		<meta charset="utf-8">
+		<title>{title}</title>
+		<link rel="stylesheet" href="/css/main.css">
+	</head>
+	<body>
+		<div class="breadcrumbs_div">
+			
+	<ul class="breadcrumb">
+		<li><a href="/">Home</a></li>
+	<li><a href="/projects">Projects</a></li>
+	<li><a href="/projects/power_tree_calc">Power&nbspTree&nbspCalculator</a></li>
+
+	</ul>
+	
+		</div>
+		<article>
+			<h1 id="power-tree-calculator">Power Tree Calculator</h1>
+<p><em>This script was created to help calculate power consumption for an autonomous electrical go-kart at UC San Diego. This is not currently under development.</em></p>
+<p>This script is used to calculate power losses in the system. It will also tell you what the minimum gauge of your wires should be to achieve certain default maximum power losses on those wires.  </p>
+<p>Future functionality may be added. See 'To-do' section at the end.</p>
+<p><a target="_blank" href="https://github.com/narekboghozian/power_tree_calc">GitHub Link</a></p>
+<h2 id="usage">Usage</h2>
+<ol>
+<li>Go to the root directory of this repo</li>
+<li>To evaluate system v0.1, use the command:</li>
+</ol>
+<!-- -->
+
+<pre><code>python3 calc.py v0_1
+</code></pre>
+<h2 id="working-with-sys-files">Working with sys files</h2>
+<p>The sys files are where the config for each system is stored. This will tell the script how everything is connected.  </p>
+<h3 id="data-format">Data format</h3>
+<p><img alt="Image of rooted tree" src="https://narekb.s3.us-west-2.amazonaws.com/projects/power-tree-calc/rooted_tree.jpg" title="Rooted Tree" /></p>
+<p>The system is represented as a <a target="_blank" href="https://www.tutorialspoint.com/discrete_mathematics/introduction_to_trees.htm">rooted tree</a> where the <strong><em>root node</em></strong> is what the source (battery, power supply, etc...) sees, the <strong><em>internal nodes</em></strong> represent the components in between (power converters, filters, etc...), and the <strong><em>leaf nodes</em></strong> represent clients (end devices which are the end users of the power).  </p>
+<p>Note: Example rooted tree has symmetrical structure. This is not necessary.</p>
+<h3 id="node-properties">Node properties</h3>
+<p>Each node has values associated with it that are necessary to run the script.</p>
+<h4 id="required-values">Required values:</h4>
+<ul>
+<li><strong><em>'name'</em></strong><ul>
+<li>The thing that goes in the parent nodes 'branches' list</li>
+</ul>
+</li>
+<li><strong><em>'type'</em></strong><ul>
+<li>Will tell script how to treat this node</li>
+<li>Recognized types:<ul>
+<li>'client' or 'cli' - End user of power</li>
+<li>'dcc' - DC / DC Converter</li>
+</ul>
+</li>
+<li>Not required by the 'system' / root node</li>
+</ul>
+</li>
+<li><strong><em>'voltage'</em></strong><ul>
+<li>Required for:<ul>
+<li>DC / DC Converter type nodes</li>
+<li>The 'system' / root node</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong><em>'distance'</em></strong><ul>
+<li>How long the wire is between this node and its parent node</li>
+<li>Given in centimeters</li>
+</ul>
+</li>
+<li><strong><em>'power'</em></strong> or <strong><em>'branches'</em></strong><ul>
+<li>Internal nodes need 'branches' while leaf nodes need 'power'</li>
+<li>For power, given in watts</li>
+</ul>
+</li>
+<li><strong><em>'efficiency'</em></strong><ul>
+<li>Required for:<ul>
+<li>DC / DC Converter type nodes</li>
+</ul>
+</li>
+<li>Given in %</li>
+</ul>
+</li>
+</ul>
+<h4 id="optional-values">Optional values:</h4>
+<ul>
+<li><strong><em>'description'</em></strong><ul>
+<li>Use this to add a comment to the node</li>
+</ul>
+</li>
+<li><strong><em>'quiescent_power'</em></strong><ul>
+<li>Given in watts</li>
+</ul>
+</li>
+</ul>
+<h3 id="sys-file-example">Sys file example</h3>
+<pre><code>{
+    "description": "Explain this system here",
+    "system":{
+        "type": "root",
+        "efficiency": 100,
+        "distance": 50,
+        "voltage": 12,
+        "branches":{
+            "computer": {
+                "description":"The computer. Model #qwerty123",
+                "type": "client",
+                "distance": 50,
+                "power": 50
+            },
+            "converter": {
+                "description":"A DC / DC Converter",
+                "type": "dcc",
+                "distance": 15,
+                "voltage": 5,
+                "efficiency": 80,
+                "branches":{
+                    "camera": {
+                        "description": "The rear camera",
+                        "type": "client",
+                        "distance": 100,
+                        "power": 2
+                    },
+                    "radio": {
+                        "description": "The controller radio",
+                        "type": "client",
+                        "distance": 100,
+                        "power": 2
+                    }
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<p>The above example describes a system which looks like this:</p>
+<pre><code>12v Supply
+|
+|--- Computer
+|
+|--- 5v Power Converter
+    |
+    |--- Camera
+    |
+    |--- Radio
+</code></pre>
+<p>Running the calculator on this system yields:</p>
+<pre><code>&gt;&gt;&gt; python calc.py test_sys
+
+   sys/test_sys.json
+
+   Total Power:
+   55.195 (W)
+
+
+   Supply &gt; root &lt;-- 50 cm --&gt; computer ............. 14 AWG .... 4.17 A
+   Supply &gt; root &gt; converter &lt;-- 100 cm --&gt; camera .. 24 AWG .... 0.4 A
+   Supply &gt; root &gt; converter &lt;-- 100 cm --&gt; radio ... 24 AWG .... 0.4 A
+   Supply &gt; root &lt;-- 15 cm --&gt; converter ............ 24 AWG .... 0.42 A
+   Supply &lt;-- 50 cm --&gt; root ........................ 14 AWG .... 4.59 A
+</code></pre>
+<h2 id="to-do">To-do</h2>
+<p>Mostly nice-to-have's.</p>
+<ul>
+<li>Add base option so that another system can be copied and modified</li>
+<li>Add Min/Nom/Max voltage and to calculate under various conditions</li>
+<li>Add 'lin' - linear regulator node type</li>
+<li>Add 'poe' - power over ethernet node type. This will allow ethernet cable classes rather than gauge sizes to be used.</li>
+<li>Add template nodes so no need to repeat listing for modules used multiple times</li>
+<li>Power profile support<ul>
+<li>Time constant support</li>
+<li>Convolution to find peak power spikes</li>
+</ul>
+</li>
+<li>Add 'path_dcr' as alternative to distance.</li>
+<li>Add 'current' option for clients if necessary. Will either use last declared voltage on path or something else...</li>
+<li>Add more node types (as needed)</li>
+<li>Add DC / DC Converter efficiency curve feature</li>
+<li>Separate into descriptions &amp; comments?</li>
+<li>Stop ignoring voltage drop?</li>
+<li>Allow sys file specific overrides to config stuff</li>
+<li>Make it object oriented  </li>
+</ul>
+<p>Done:</p>
+<ul>
+<li>Add 'gauge' so path dcr can be calculated from that instead of default loss parameters in config.</li>
+<li>Use only even gauge sizes</li>
+</ul>
+		</article>
+
+		<p class="buildwith">
+			Website built with <a href="/projects/site_builder/">Static&nbspSite&nbspGenerator</a>. A static website generator I wrote in Python.
+		</p>
+	</body>
+</html>

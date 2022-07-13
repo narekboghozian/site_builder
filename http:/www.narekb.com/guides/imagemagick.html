@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta name="robots" content="noindex">
+		<meta charset="utf-8">
+		<title>{title}</title>
+		<link rel="stylesheet" href="/css/main.css">
+	</head>
+	<body>
+		<div class="breadcrumbs_div">
+			
+	<ul class="breadcrumb">
+		<li><a href="/">Home</a></li>
+	<li><a href="/notes">Notes</a></li>
+	<li><a href="/notes/imagemagick">Imagemagick</a></li>
+
+	</ul>
+	
+		</div>
+		<article>
+			<h1 id="imagemagick">Imagemagick</h1>
+<p><em>Note - Imagemagick is for images, not vectors. It will convert fine but native pdf format will balloon in size. Can maintain jpg format so size doesn't balloon. Or use ghostscript</em></p>
+<h3 id="resolution-issues">Resolution issues</h3>
+<p>'-density X' will fix some issues with resolution where '-quality 100' will not</p>
+<p>Last I used for X was 400 (-density 400)</p>
+<h3 id="convert-images-to-pdf">Convert Images to PDF</h3>
+<pre><code>magick "IMG"* out.pdf
+</code></pre>
+<h3 id="change-size">Change size</h3>
+<h4 id="to-letter">To Letter</h4>
+<pre><code>convert in.pdf -page letter out.pdf
+</code></pre>
+<h4 id="from-images">From Images</h4>
+<pre><code>convert *.jpg -units pixelsperinch -density 72 -page letter foo.pdf
+</code></pre>
+<h4 id="to-specific-pixel-width-maintaining-aspect">To specific pixel width, maintaining aspect</h4>
+<pre><code>-resize 100x
+</code></pre>
+<p>(Geometry in general is <width>x<height> )</p>
+<h3 id="background-color">Background Color</h3>
+<pre><code>convert image.tif -resize 575x823^&gt; -gravity center -background white -extent 595x842 image.pdf
+</code></pre>
+<h3 id="change-dpi">Change DPI</h3>
+<pre><code>convert -density 200x200 -quality 60 -compress jpeg input.pdf output.pdf
+</code></pre>
+<p>(For JPEG, obviously)</p>
+<pre><code>convert -units PixelsPerInch input.png -density 300 output.png
+</code></pre>
+<p>(This one sucks. Size balloons. See top note)</p>
+<h3 id="convert-text-to-png">Convert text to png</h3>
+<ul>
+<li>https://unix.stackexchange.com/questions/138804/how-to-transform-a-text-file-into-a-picture</li>
+<li>https://legacy.imagemagick.org/discourse-server/viewtopic.php?t=18300</li>
+<li>https://askubuntu.com/questions/673615/imagemagick-convert-command-cannot-use-fonts</li>
+</ul>
+<!-- -->
+
+<pre><code>convert -size 1200x140 xc:"rgba(0,0,0,0)" -type truecolormatte -font "Helvetica-Neue-Bold" -pointsize 120 -fill blue -draw @email.txt PNG32:email.png
+</code></pre>
+<p>where email.txt is...</p>
+<pre><code>text 48,100 "email@domain.tld"
+</code></pre>
+<p>represents the offset of the text, and it is stored in the txt itself…</p>
+<pre><code>convert -list font | grep "Font:"
+</code></pre>
+<p>can use this to find all available fonts…</p>
+		</article>
+
+		<p class="buildwith">
+			Website built with <a href="/projects/site_builder/">Static&nbspSite&nbspGenerator</a>. A static website generator I wrote in Python.
+		</p>
+	</body>
+</html>

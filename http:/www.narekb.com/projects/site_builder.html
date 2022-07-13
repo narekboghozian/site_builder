@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta name="robots" content="noindex">
+		<meta charset="utf-8">
+		<title>{title}</title>
+		<link rel="stylesheet" href="/css/main.css">
+	</head>
+	<body>
+		<div class="breadcrumbs_div">
+			
+	<ul class="breadcrumb">
+		<li><a href="/">Home</a></li>
+	<li><a href="/projects">Projects</a></li>
+	<li><a href="/projects/site_builder">Static&nbspSite&nbspGenerator</a></li>
+
+	</ul>
+	
+		</div>
+		<article>
+			<h1 id="static-site-generator">Static Site Generator</h1>
+<p>I decided to build a static website generator. I did it to simplify the process of posting my projects online, because I'd rather produce content than get wrapped up in web development.</p>
+<p>I tried other static site builders but ran in to npm issues that I didn't feel like dealing with. I tried to keep this project simple, with the only frivolous addition being an RSS feed generator, since building projects should be the main goal still.</p>
+<p><a target="_blank" href="https://github.com/narekboghozian/site_builder">GitHub Link</a></p>
+<h2 id="scope">Scope</h2>
+<h3 id="objective">Objective</h3>
+<p>Build a static website generator that allows me to focus on writing build logs and working on projects instead of web development.</p>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>Build website from markdown files</li>
+<li>Generate RSS feeds at build time at baseurl/rss</li>
+<li>Easy use &amp; extensibility</li>
+</ul>
+<h3 id="constraints">Constraints</h3>
+<ul>
+<li>Minimal modification of markdown</li>
+<li>No complicated web features (hidden menus, etc..)</li>
+<li>Minimal web design overall</li>
+<li>Only markdown files will be used for text input</li>
+</ul>
+<h3 id="features">Features</h3>
+<ul class="checklist">
+<li><input type="checkbox" disabled checked> Markdown processing                  </li>
+<li><input type="checkbox" disabled checked> Template based website construction  </li>
+<li><input type="checkbox" disabled checked> RSS Feed                             </li>
+<li><input type="checkbox" disabled checked> Home page generator                  </li>
+<li><input type="checkbox" disabled checked> Navigation breadcrumbs</li>
+<li><input type="checkbox" disabled> Sort entries based on date</li>
+<li><input type="checkbox" disabled> Auto generated category pages</li>
+<li><input type="checkbox" disabled> Contact form                         </li>
+<li><input type="checkbox" disabled> Include month, year below title within articles                </li>
+<li><input type="checkbox" disabled> Automated bibliography and References</li>
+<li><input type="checkbox" disabled> Table of contents generator          </li>
+<li><input type="checkbox" disabled> Tags                                 </li>
+<li><input type="checkbox" disabled> Links for sections                   </li>
+<li><input type="checkbox" disabled> Search                               </li>
+<li><input type="checkbox" disabled> LaTex Math integration               </li>
+<li><input type="checkbox" disabled> Input file format versioning         </li>
+</ul>
+<h2 id="design">Design</h2>
+<h3 id="the-tech">The Tech</h3>
+<p>I decided to use python and markdown for their simplicity and faster development time. I considered creating a file format but markdown has almost everything I want already. The only thing missing from markdown is a native way to add metadata. To circumvent this, I decided to add a metadata section before the first '#'  and pre-process the markdown to consume and remove this section before converting it to HTML using the <a target="_blank" href="https://pypi.org/project/Markdown/">markdown</a> package in python.</p>
+<h3 id="processing-files">Processing Files</h3>
+<p>The input is configurable. Here src and build directories are git submodules so the content can be updated independently from one another. Python searches recursively through the src directory where files are organized in a hierarchy that corresponds to their final url. For example:</p>
+<pre><code>src
+└── projects
+    └── site-builder.md
+</code></pre>
+<p>becomes</p>
+<pre><code>&lt;site&gt;/projects/site-builder/index.html
+</code></pre>
+<p>but is also accessible through</p>
+<pre><code>&lt;site&gt;/projects/site-builder
+</code></pre>
+<p>Those files are filtered to determine which files are valid markdown files, the contents and metadata are separated, the contents are converted to HTML while the metadata is processed.</p>
+<h3 id="templating">Templating</h3>
+<p>A template is used to generate the HTML. The idea here is that templates can be configured for the specific function and selected in the file metadata. Templates are stored as html files with some pattern strings that will be matched to, such as {title}.</p>
+<h3 id="generating-rss">Generating RSS</h3>
+<p>The metadata and some extracted content is used to generate the RSS feed. This feed is updated every time the website is re-built and is accessible at <site>/rss/rss.xml .</p>
+<h3 id="home-page-generator">Home Page Generator</h3>
+<p>This generates based on a home page specific template. In doing this, I had to introduce another metadata variable 'type' which is unnecessary and redundant. This whole project would be a lot better if it was done using object oriented programming, but this is one of those projects that changed as I did it. Oh well ¯\_(ツ)_/¯</p>
+<h3 id="breadcrumbs">Breadcrumbs</h3>
+<p>Breadcrumbs are the simple navigation elements at the top of this page. This is a list which has had some css added to make them linear and links have been added provide navigation. This is generated by iterating through filenames to generate links, and searching through the metadata to find the title name. Once this is done, a breadcrumb template is formatted and the html is added to the site, via the primary template.</p>
+		</article>
+
+		<p class="buildwith">
+			Website built with <a href="/projects/site_builder/">Static&nbspSite&nbspGenerator</a>. A static website generator I wrote in Python.
+		</p>
+	</body>
+</html>

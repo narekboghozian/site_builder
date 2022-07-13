@@ -234,29 +234,29 @@ ul.breadcrumb li a:hover {
 
 
 
-/* Guides */
+/* Minimal */
 
 :root {
-	--guide-post-title-font-size: 1.3rem;
-	--guide-post-desc-font-size: 0.9rem;
+	--minimal-post-title-font-size: 1.3rem;
+	--minimal-post-desc-font-size: 0.9rem;
 }
 
-.guide-post-entry{
+.minimal-post-entry{
 	padding: 1rem;
 	border: 1px var(--text-color) solid;
 	margin: 1rem;
 }
-.guide-post-entry-title{
-	font-size: var(--guide-post-title-font-size);
+.minimal-post-entry-title{
+	font-size: var(--minimal-post-title-font-size);
 	float: left;
 	margin-right: 2rem;
 }
-.guide-post-entry-desc{
+.minimal-post-entry-desc{
 	/* width: ; */
-	font-size: var(--guide-post-desc-font-size);
-	padding-top: calc(var(--guide-post-title-font-size) - var(--guide-post-desc-font-size));
+	font-size: var(--minimal-post-desc-font-size);
+	padding-top: calc(var(--minimal-post-title-font-size) - var(--minimal-post-desc-font-size));
 }
-.guide-post-entry > *, .guide-post-entry > * > * {
+.minimal-post-entry > *, .minimal-post-entry > * > * {
 	display: inline-block;
 }
 
