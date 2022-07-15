@@ -1,6 +1,7 @@
 # from modules.process_entry import process_entry
 from modules.make_breadcrumbs import make_breadcrumbs
 from datetime import datetime as dt
+import xml.etree.ElementTree as ET
 from pathlib import Path
 import markdown
 import json
@@ -24,13 +25,17 @@ class ObjectBase:
 			'page'	: [
 				'home',
 				'category',
+				'contact',
 				'article'
+			],
+			'element' : [
+				'show_more_button'
 			]
 		}
-		assert type in self.template_types, "objects > category > __get_template:\nInvalid type."
+		assert type in self.template_types, "objects > ObjectBase > __get_template:\nInvalid type."
 		if style == False or style=='default':
 			style = self.template_types[type][-1]
-		assert style in self.template_types[type], "objects > category > __get_template:\nInvalid style"
+		assert style in self.template_types[type], "objects > ObjectBase > __get_template:\nInvalid style"
 		template_path = "templates/%s_%s.html"%(type, style)
 		template = open(template_path, 'r').read()
 
@@ -41,15 +46,22 @@ class ObjectBase:
 
 		filled = template
 		for param in params:
-			match = '{%s}'%param
+			match = '{%s}'%str(param)
 			if match in filled:
-				filled = filled.replace(match, params[param])
+				filled = filled.replace(match, str(params[param]))
 
 		return filled
 
+	def write_to_file(self, file_content, file_path, build_dir="narekb/"):
+
+		file_path = build_dir + file_path
+		output_file = Path(file_path)
+		output_file.parent.mkdir(exist_ok=True, parents=True)
+		output_file.write_text(file_content)
+
 
 class Entry(ObjectBase):
-	def __init__ (self, filename, root = '/'):
+	def __init__ (self, filename, root = '/', build_dir = "build/"):
 		self.filename = filename
 		# self.meta, self.html = process_entry(file)
 		self.root = root
@@ -73,7 +85,7 @@ class Entry(ObjectBase):
 		self.raw_meta = raw_md_file[:loc]
 		self.raw_html = raw_md_file[(loc + 1):]
 
-	def __make_link(self):
+	def __make_link(self, html=False):
 		"""Generate the relative URL"""
 
 		path_items = self.filename[:-len('.md')].strip('/').split('/')
@@ -90,6 +102,8 @@ class Entry(ObjectBase):
 		# 			name = entry.meta['title']
 		# 	name = name.replace(' ', '&nbsp')
 		# 	path.append((name, link))
+		if html:
+			link+='.html'
 
 		return link
 
@@ -145,8 +159,8 @@ class Entry(ObjectBase):
 				uncomment = line.split(' //')[0].split()
 				cmd = uncomment[0][1:]
 				assert (cmd in required_inputs or cmd in optional_inputs or cmd in deprecated_inputs), "Invalid input"
-				if cmd in deprecated_inputs:
-					print("Warning: %s is a deprecated command. Found in %s"%(cmd, self.filename))
+				# if cmd in deprecated_inputs:
+					# print("Warning: %s is a deprecated command. Found in %s"%(cmd, self.filename))
 				metadata[cmd] = " ".join(uncomment[1:])
 				if cmd in tf_commands: # set to true if included at all
 					metadata[cmd] = True
@@ -156,12 +170,13 @@ class Entry(ObjectBase):
 		if 'thumbnail' not in metadata:
 			metadata['thumbnail'] = '/images/null.jpg'
 		metadata['filename'] = self.filename
-		if 'link' not in metadata:
-			metadata['link'] = self.__make_link()
+		if 'link' not in metadata or True:
+			metadata['link'] = self.__make_link(html=True)
 		metadata['type'] = self.__get_type()
 		metadata['category'] = self.__get_category()
-		metadata['monthyear'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("%b %Y")
-		metadata['timestamp'] = dt.strptime(metadata['date'], "%m.%d.%Y").timestamp()
+		metadata['monthyear'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("%b&nbsp%Y")
+		metadata['timestamp'] = int(dt.strptime(metadata['date'], "%m.%d.%Y").timestamp())
+		metadata['pubDate'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("%a, %d %b %Y %H:%M:%S %z")
 		self.meta = metadata
 
 	def __process_content(self):
@@ -216,16 +231,10 @@ class Entry(ObjectBase):
 					name = self.meta['title']
 				name = name.replace(' ', '&nbsp')
 				path.append((name, link))
-			print(path)
 			template = template.replace(crumbs_id, make_breadcrumbs(path))
 		formatted = template.replace("{entry}", self.html)
 
 		return formatted
-
-	def __write_to_file(self, file_content, file_path):
-		output_file = Path(file_path)
-		output_file.parent.mkdir(exist_ok=True, parents=True)
-		output_file.write_text(file_content)
 
 	def build(self, build_dir='build/'):
 		"""Each entry is one web page of content, with metadata and content separated"""
@@ -236,12 +245,13 @@ class Entry(ObjectBase):
 		file_name = self.meta['link']
 		if '.html' != file_name[-len('.html'):]:
 			file_name += '.html'
-		self.__write_to_file(formatted, file_name)
+			print(file_name)
+		self.write_to_file(formatted, file_name)
 
 	def equals(self, cmp):
 		"""Test if self object has same values as cmp object"""
 
-		if self.file  == cmp.file and self.meta  == cmp.meta and self.html == cmp.html and self.root == cmp.root:
+		if self.filename  == cmp.filename and self.meta  == cmp.meta and self.html == cmp.html and self.root == cmp.root:
 		 	return True
 		return False
 
@@ -254,8 +264,9 @@ class Entry(ObjectBase):
 
 
 class Category(ObjectBase):
-	def __init__ (self, category, source_dir):
+	def __init__ (self, category, source_dir, build_dir = "build/"):
 
+		self.build_dir = build_dir
 		self.source = source_dir
 		self.entry_list = []
 		self.categories_headers = {
@@ -282,6 +293,11 @@ class Category(ObjectBase):
 			}
 		}
 		self.site_path = "/" + self.__make_link()[len(source_dir):].strip('/')
+		self.has_pins = False
+		self.has_homes = False
+		self.num_pins = 0
+		self.num_homes = 0
+		self.count = 0
 
 	def __get_entries(self):
 
@@ -292,12 +308,16 @@ class Category(ObjectBase):
 
 		filtered = []
 		for ent in entries:
-			if ent.meta['pin'] == pinned and ent.meta['home'] == home:
+			add = True
+			if pinned and not ent.meta['pin']:
+				add = False
+			if home and not ent.meta['home']:
+				add = False
+			if add:
 				filtered.append(ent)
-
 		return filtered
 
-	def __sort_entries(self, entries, reverse = True, key = 'date'):
+	def __sort_entries(self, entries, reverse = False, key = 'date'):
 		"""Tool to sort all the added entries into sorted array"""
 
 		sort_options = [
@@ -312,6 +332,8 @@ class Category(ObjectBase):
  			sort_options[2] : lambda ent: entries.index(ent)
 		}
 		sorted_entries = sorted(entries, key=sort_functions[key])
+		if not reverse:
+			sorted_entries.reverse()
 		return sorted_entries
 
 	def __make_params(self, ent):
@@ -321,7 +343,7 @@ class Category(ObjectBase):
 			'date'			: 	ent.meta['monthyear'],
 			'title'			: 	ent.meta['title'],
 			'description'	: 	ent.meta['description'],
-			'link'			: 	ent.meta['link'],
+			'link'			: 	"/"+ent.meta['link'].lstrip('/'),
 			'thumbnail'		: 	ent.meta['thumbnail'],
 			'timestamp'		: 	ent.meta['timestamp']
 			}
@@ -331,19 +353,25 @@ class Category(ObjectBase):
 	def __build_posts(self, entries, pinmark = 'default', style = 'default'):
 		"""Build the post list but not the actual container or page"""
 
+		styles = {
+			'projects' : 'small_thumbnail',
+			'notes' : 'minimal',
+			'blog' : 'basic'
+		}
 		posts = []
-		template = self.get_template('entry', style)
+		template = self.get_template('entry', styles[self.category])
 		for ent in entries:
 			temp = ""
 			params = self.__make_params(ent)
 			filled = self.fill_template(template, params)
+			posts.append(filled)
 
 		return posts
 
 	def __make_link(self, output=False):
 		"""Make the link for the section"""
 
-		links = {
+		self.links = {
 			"project": "projects",
 			"projects": "projects",
 			"note": "notes",
@@ -353,13 +381,13 @@ class Category(ObjectBase):
 			"blogs": "blog",
 			"blog": "blog"
 		}
-		link = links[self.category]
+		link = self.links[self.category]
 		if not output:
 			link = os.path.join(self.source, link)
 
 		return link
 
-	def __build_container(self, posts, add_header = False, style = False):
+	def __build_container(self, posts, add_header = False, style = False, show_more = False):
 		"""Buid the category container for the posts"""
 
 		template = self.get_template('container', style)
@@ -367,52 +395,60 @@ class Category(ObjectBase):
 			header = self.header
 		else:
 			header = ''
+		more = ""
+		if show_more and self.count > self.num_homes:
+			more = self.get_template('element', 'show_more_button')
+			mpar = {
+				"header" : self.header,
+				"remaining_count" : (self.count - self.num_homes),
+				"total_count" : self.count,
+				"category_link" : "/"+self.__make_link(output=True)
+			}
+			more = self.fill_template(more, mpar)
 		params = {
-			"link"		: self.__make_link(),
+			"link"		: "/"+self.__make_link(output=True),
 			"header"	: header,
-			"content"	: "\n".join(posts)
+			"content"	: "\n".join(posts),
+			"show_more"		: more
 		}
 		container = self.fill_template(template, params)
 
 		return container
 
-	def __make_section(self, add_header = True, pinned = False, pinmark = 'default', home = False, style = 'default'):
+	def __make_section(self, add_header = True, pinned = False, pinmark = 'default', home = False, style = 'default', show_more=False):
 		"""Make the html for the posted sections on home or category page."""
 
 		entries		= self.__get_entries()
 		filtered	= self.__filter_entries(entries, pinned = pinned, home = home)
 		sorted 		= self.__sort_entries(filtered)
-		posts 		= self.__build_posts(entries, pinmark=pinmark, style=style)
-		container	= self.__build_container(posts, add_header=add_header, style=style)
+		posts 		= self.__build_posts(sorted, pinmark=pinmark, style=style)
+		container	= self.__build_container(posts, add_header=add_header, style=style, show_more=show_more)
 
 		return container
 
-	def __write_to_file(self, file_content, file_path):
-
-		print("category: writing to %s"%file_path)
-		output_file = Path(file_path)
-		output_file.parent.mkdir(exist_ok=True, parents=True)
-		output_file.write_text(file_content)
-
 	def build_category_page(self):
 
-		breadcrumbs = []
-		for item in self.site_path.strip('/').split('/'):
-			breadcrumbs.append((self.categories_headers[item], item))
+		breadcrumbs = [('Home', '/')]
+		site_path = self.site_path.strip('/').split('/')
+		for i, item in enumerate(site_path):
+			breadcrumbs.append((self.categories_headers[item], "/"+"/".join(site_path[:i]) + self.category))
 		params = {
 			'title': self.header,
-			'entry': self.__make_section(add_header=False),
+			'entry': self.__make_section(add_header=True),
 			'breadcrumbs': make_breadcrumbs(breadcrumbs),
-			'section': self.header
+			# 'section': self.header
+			'section': ''
 			}
 		category_page_template = self.get_template('page', 'category')
 		page = self.fill_template(category_page_template, params)
 
-		self.__write_to_file(page, self.__make_link(output=True))
+		self.write_to_file(page, self.__make_link(output=True)+'/index.html')
 
-	def build_category_section(self, home = True, header = True, pinned = False):
+	def build_category_section(self, home = False, header = True, pinned = False):
 
-		section = self.__make_section(home=home, add_header=header, pinned=pinned)
+		# Pinned keeps at the top
+		# Home includes it in the home page
+		section = self.__make_section(home=self.has_homes, add_header=header, pinned=pinned, show_more=self.has_homes)
 
 		return section
 
@@ -423,7 +459,14 @@ class Category(ObjectBase):
 		if entry_input.inside(self.entry_list):
 			print("objects > category > __add_entry: Blocked duplicate entry.")
 		else:
+			if entry_input.meta['pin']:
+				self.has_pins = True
+				self.num_pins += 1
+			if entry_input.meta['home']:
+				self.has_homes = True
+				self.num_homes += 1
 			self.entry_list.append(entry_input)
+			self.count = len(self.entry_list)
 		return True
 
 	def append(self, entry_input):
@@ -440,7 +483,7 @@ class Category(ObjectBase):
 
 class Website(ObjectBase):
 	def __init__(self, source = "src/", build = "build/", clear = False):
-		self.source, self.build = (source, build)
+		self.source, self.build_dir = (source, build)
 		self.root = source
 		self.categories = []
 		self.__get_entries()
@@ -449,7 +492,9 @@ class Website(ObjectBase):
 		self.__build_articles()
 		self.__build_categories()
 		self.__build_home()
-		# self.__build_css()
+		self.__build_css()
+		self.__build_assets()
+		self.__build_contact()
 		# self.__build_rss()
 		# self.__build_htaccess()
 
@@ -478,7 +523,7 @@ class Website(ObjectBase):
 		files = self.__get_files()
 		entries = []
 		for file in files:
-			entries.append(Entry(file))
+			entries.append(Entry(file, build_dir=self.build_dir))
 
 		self.entries = entries
 
@@ -489,13 +534,13 @@ class Website(ObjectBase):
 	def __build_articles(self): # build all the pages
 
 		for entry in self.entries:
-			entry.build()
+			entry.build(build_dir = self.build_dir)
 
 	def __build_categories(self): # build the category pages
 
 		categories = {}
 		for entry in self.entries:
-			if entry.meta['type'] not in categories:
+			if entry.meta['category'] not in categories:
 				categories[entry.meta['category']] = []
 			categories[entry.meta['category']].append(entry)
 		cat_objs = {}
@@ -504,72 +549,29 @@ class Website(ObjectBase):
 			cat_objs[category].append(categories[category])
 			cat_objs[category].build_category_page()
 
-	# def __get_template(self, type, style):
-	# 	"""Get or make the template based on params"""
-	#
-	# 	self.template_types = {
-	# 		'entry'	: [
-	# 			# 'big_thumb',
-	# 			'small_thumbnail',
-	# 			'minimal',
-	# 			'basic'
-	# 		],
-	# 		'container':[
-	# 			'basic'
-	# 		],
-	# 		'page'	: [
-	# 			'article',
-	# 			'home',
-	# 			'category'
-	# 		]
-	# 	}
-	# 	if style == False:
-	# 		style = 'basic'
-	#
-	# 	assert type in self.template_types, "\nobjects > website > __get_template:\nInvalid type."
-	# 	assert style in self.template_types[type], "\nobjects > website > __get_template:\nInvalid style"
-	# 	template_path = "templates/%s_%s.html"%(type, style)
-	# 	template = open(template_path, 'r').read()
-	#
-	# 	return template
-
-	# def __fill_template(self, template, params):
-	# 	"""Fill out a template"""
-	#
-	# 	filled = template
-	# 	for param in params:
-	# 		match = '{%s}'%param
-	# 		if match in filled:
-	# 			filled = filled.replace(match, params[param])
-	# 	return filled
-
-	def __write_to_file(self, file_content, file_path):
-
-		print("website: writing to %s"%file_path)
-		output_file = Path(file_path)
-		output_file.parent.mkdir(exist_ok=True, parents=True)
-		output_file.write_text(file_content)
-
 	def __build_home(self): # build the home page
 
 		categories = {}
 		for entry in self.entries:
-			if entry.meta['type'] not in categories:
+			if entry.meta['category'] not in categories:
 				categories[entry.meta['category']] = []
 			categories[entry.meta['category']].append(entry)
 		cat_objs = {}
 		cat_sections = {}
 		home_template = self.get_template('page', 'home')
 		for category in categories:
-			cat_objs[category] = Category(category, self.build)
+			cat_objs[category] = Category(category, self.source)
 			cat_objs[category].append(categories[category])
 			cat_sections[category] = cat_objs[category].build_category_section()
+		cat_section = ""
+		for item in cat_sections.keys():
+			cat_section+=cat_sections[item]
 		params = {
-			"entry": "\n".join(cat_sections)
+			"entry": "".join(cat_section)
 		}
 		home_filled = self.fill_template(home_template, params)
 
-		self.__write_to_file(home_filled, 'index.html')
+		self.write_to_file(home_filled, 'index.html')
 
 	def __build_rss(self): # build the rss
 		pass
@@ -577,9 +579,73 @@ class Website(ObjectBase):
 	def __build_htaccess(self): # build the htaccess
 		pass
 
+	def __build_css(self):
 
+		css_path = 'css/main.css'
+		css = open(css_path, 'r').read()
+		self.write_to_file(css, css_path)
 
+	def __build_assets(self):
 
+		images_path = 'images/'
+		new_path = self.build_dir + images_path
+		os.system('cp -r %s %s'%(images_path, new_path))
+
+	def __build_contact(self):
+
+		# template = self.get_template('page', 'contact')
+		# params = {
+		# }
+		# filled = self.fill_template(template, params)
+		# filename = "contact.html"
+		# self.write_to_file(filled, filename)
+
+		path = 'contact/'
+		new_path = self.build_dir + path
+		os.system('cp -r %s %s'%(path, new_path))
+
+	def __build_rss(self):
+
+		required_rss_items = [
+			'link',
+			'title',
+			'description'
+		]
+		optional_rss_items = [
+			"author",
+			"category",
+			"comments",
+			"enclosure",
+			"guid",
+			"pubDate",
+			"source"
+		]
+		filename = "rss.xml"
+		main_title = "Nareks Blog"
+		main_link = "http://www.narekb.com"
+		main_description = "Nareks Blog"
+		rss = ET.Element("rss", version="2.0")
+		channel = ET.SubElement(rss, "channel")
+		ET.SubElement(channel, "title").text = main_title
+		ET.SubElement(channel, "link").text = main_link
+		ET.SubElement(channel, "description").text = main_description
+		item_list = []
+		for ent in self.entries:
+			item_list.append({
+				"link" : ent.meta['link'],
+				"title" : ent.meta['title'],
+				"description" : ent.meta['description'],
+				"pubDate" : ent.meta['pubDate']
+			})
+		for item_json in item_list:
+			item = ET.SubElement(channel, 'item')
+			for attr in item_json[0]:
+				validity, attr_key, attr_val = __process_json_item(attr, item_json[0][attr])
+				if validity:
+					ET.SubElement(item, attr_key).text = attr_val
+		tree = ET.ElementTree(rss)
+		rss_path = os.path.join(output_dir, filename)
+		tree.write(rss_path, encoding='utf8', xml_declaration=True)
 
 
 

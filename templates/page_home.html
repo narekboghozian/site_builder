@@ -9,7 +9,7 @@
 	</head>
 	<body>
 		<article>
-			<h1 id="welcome">> Welcome </h1>
+			<h1 id="home-title">> Welcome </h1>
 			<p class="home-info">
 				I'm Narek. I'm an engineer currently living in San Diego, CA.
 			</p>
@@ -19,14 +19,15 @@
 			<p class="home-info italic">
 				Note: I am still adding previous projects to this website so many articles are currently incomplete or missing.
 			</p>
-			<p class="home-info">
-				<a href="/rss.xml">RSS</a>
-			</p>
+			<div class="home-info home-info-links">
+				<a href="/contact/" class="visible_link">Contact&nbspPage</a>
+				<a href="/rss.xml" class="visible_link">RSS&nbspFeed</a>
+			</div>
 			{entry}
 		</article>
 
 		<p class="buildwith">
-			Website built with <a href="/projects/site_builder/">Static&nbspSite&nbspGenerator</a>. A static website generator I wrote in Python.
+			Built with <a href="/projects/site_builder.html" class="visible_link">Static&nbspSite&nbspGenerator</a>, a tool I wrote in Python.
 		</p>
 	</body>
 </html>

@@ -9,8 +9,8 @@ def main():
 
 	source = json.load(open('config.json'))['source_folder']
 	build = json.load(open('config.json'))['build_folder']
-	build = 'build/'
-	site = objects.Website()
+	build = 'narekb/'
+	site = objects.Website(build = build)
 
 	return 0
 
