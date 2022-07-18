@@ -1,0 +1,465 @@
+:root {
+    --contact-loading-animation-size: 200px;
+
+    --check-pass: #7CB342;
+    --check-fail: #FFC107;
+    /* red:  #FF6245 */
+    --check-scaling: 1.8;
+    --alert-scaling: 1.1;
+}
+
+
+.contact-form-container {
+    text-align: center;
+}
+
+.contact-form {
+    width: 100%;
+    text-align: center;
+    padding: 0px;
+    margin: 0px;
+    margin: auto;
+    max-width: 30rem;
+    border: none;
+	margin-top: -60px;
+}
+
+#contact-form.hidden {
+	height: 50px;
+	overflow: hidden;
+}
+
+.contact-form-iframe {
+    border: none;
+    width: 100%;
+    height: 45rem;
+    border: none;
+    overflow: hidden;
+}
+
+.contact-input {
+    background-color: var(--bg-color);
+    border: var(--text-color) 1px solid;
+    padding: 0.7rem;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text-color);
+    margin: auto;
+    margin-top: 3rem;
+    width: 80%;
+    overflow: wrap;
+}
+
+.contact-input:focus {}
+
+.contact-input.valid {
+    /* background-color: rgba(0,100,0,0.5); */
+    /* box-shadow: inset 0 0 2rem green; */
+    /* outline: 5px green solid; */
+}
+
+.contact-input.invalid {
+    /* background-color: rgba(100,0,0,0.5); */
+    /* box-shadow: inset 0 0 2rem green; */
+    border-color: #f76977 !important;
+}
+
+.contact-input.disabled {
+    background-color: var(--bg-color-post-disabled);
+    cursor: default;
+    /* visibility: hidden; */
+    opacity: 0;
+    transition: 0.3s ease-out;
+}
+
+.contact-name {
+    margin-top: 1rem;
+}
+
+.contact-email {}
+
+.contact-message {
+    width: 80%;
+    max-width: 80%;
+    height: 12rem;
+    resize: none;
+}
+
+.contact-submit {
+    width: 10rem;
+    background-color: var(--bg-color-post);
+    /* transition: all 0.1s ease-in-out; */
+}
+
+.contact-submit:hover {
+    background-color: var(--bg-color-post-hover);
+    cursor: pointer;
+}
+
+.contact-submit:hover.disabled {
+    background-color: var(--bg-color-post-disabled);
+    cursor: default;
+}
+
+.contact-submit:active {
+    background-color: var(--bg-color-post-click);
+    cursor: pointer;
+}
+
+.contact-submit:active.disabled {
+    background-color: var(--bg-color-post-disabled);
+    cursor: default;
+}
+.contact-submit.reset {
+	border-color: var(--check-fail);
+	color: var(--check-fail);
+}
+.contact-submit.go_home {
+	border-color: var(--check-pass);
+	color: var(--check-pass);
+	transition: 0.5s ease;
+}
+
+.contact-status-container {
+    width: 100%;
+    position: relative;
+    right: 100px;
+    background: none;
+}
+
+div.contact-status {
+    width: var(--contact-loading-animation-size);
+    height: var(--contact-loading-animation-size);
+    margin: auto;
+    position: absolute;
+    top: calc(100vh / 2 - var(--contact-loading-animation-size) / 2);
+    right: calc(100% / 2 - var(--contact-loading-animation-size) / 2);
+    background: none;
+}
+
+svg.contact-status {
+    width: var(--contact-loading-animation-size);
+    background: none;
+}
+
+#contact-status-container {
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s ease-in;
+    transition-delay: 0.3s;
+}
+
+#contact-status-container.visible {
+    visibility: visible;
+    opacity: 1;
+    /* transition: all 2s ease-in;
+	transition-delay: 0.5s; */
+}
+
+.contact-form-separator {
+    height: 4rem;
+    width: 100%;
+}
+
+input:focus {
+    outline: none;
+}
+
+.contact-success-container {}
+
+.contact-success {
+    color: white;
+}
+
+.contact-response-iframe {
+    width: 12rem;
+    height: 4rem;
+    text-align: center;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+#contact-status-message {
+    font-size: 2rem;
+	text-align: center;
+
+}
+
+.svg-box {
+    display: inline-block;
+    position: relative;
+    width: 150px;
+}
+
+:root {
+    --check-pass: #7CB342;
+    --check-fail: #FFC107;
+    /* red:  #FF6245 */
+    --check-scaling: 1.8;
+    --alert-scaling: 1.1;
+}
+
+.checkmark {
+    stroke-width: 6.25;
+    stroke-width: 9;
+    /* stroke-linecap: round; */
+    position: absolute;
+    top: 56px;
+    left: 49px;
+    width: 100px;
+    height: 150px;
+    visibility: hidden;
+    display: none;
+}
+
+.checkmark.pass {
+    visibility: visible;
+    display: block;
+}
+
+.green-stroke {
+    stroke: var(--check-pass);
+}
+
+.red-stroke {}
+
+.yellow-stroke {
+    stroke: var(--check-fail);
+}
+
+.checkmark.pass path {
+    animation: 1s draw-check ease-out;
+    transform: scale(var(--check-scaling));
+    -ms-transform: scale(var(--check-scaling));
+    -webkit-transform: scale(var(--check-scaling));
+}
+
+@keyframes draw-check {
+    0% {
+        stroke-dasharray: 40, 100;
+        stroke-dashoffset: 40;
+        opacity: 0;
+    }
+
+    50% {
+        stroke-dasharray: 40, 100;
+        stroke-dashoffset: 40;
+        opacity: 1;
+    }
+
+    100% {
+        stroke-dasharray: 118, 100;
+        stroke-dashoffset: 40;
+    }
+}
+
+/*---------- Cross ----------*/
+.cross {
+    stroke-width: 6.25;
+    stroke-linecap: round;
+    position: absolute;
+    top: 54px;
+    left: 54px;
+    width: 40px;
+    height: 40px;
+}
+
+.cross .first-line {
+    animation: 0.7s draw-first-line ease-out;
+}
+
+.cross .second-line {
+    animation: 0.7s draw-second-line ease-out;
+}
+
+@keyframes draw-first-line {
+    0% {
+        stroke-dasharray: 0, 56;
+        stroke-dashoffset: 0;
+    }
+
+    50% {
+        stroke-dasharray: 0, 56;
+        stroke-dashoffset: 0;
+    }
+
+    100% {
+        stroke-dasharray: 56, 330;
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes draw-second-line {
+    0% {
+        stroke-dasharray: 0, 55;
+        stroke-dashoffset: 1;
+    }
+
+    50% {
+        stroke-dasharray: 0, 55;
+        stroke-dashoffset: 1;
+    }
+
+    100% {
+        stroke-dasharray: 55, 0;
+        stroke-dashoffset: 70;
+    }
+}
+
+.alert-sign {
+    stroke-width: 16;
+    position: absolute;
+    top: 100px;
+    left: 68px;
+    width: 60px;
+    height: 110px;
+    opacity: 0;
+    /* background-color: red; */
+    animation-timing-function: ease-in-out;
+    -webkit-animation-timing-function: ease-in-out;
+    display: none;
+}
+
+.alert-sign.fail {
+    display: block;
+    animation: 1s alert-sign-bounce cubic-bezier(0.175, 0.885, 0.5, 1.275);
+    transition: 1s cubic-bezier(0.175, 0.885, 0.5, 1.275);
+    top: 50px;
+    opacity: 1;
+}
+
+.alert-sign .dot {
+    stroke: none;
+    fill: #FFC107;
+    opacity: 1;
+}
+
+.alert-sign .dot {
+    transform: scale(var(--alert-scaling));
+    -ms-transform: scale(var(--alert-scaling));
+    -webkit-transform: scale(var(--alert-scaling));
+}
+
+@keyframes alert-sign-bounce {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    20% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+:root {
+    --spinner-success-color: #70c542;
+    --spinner-fail-color: #FFC857;
+    --spinner-base-color: white;
+    --spinner-success-color: var(--check-pass);
+    --spinner-fail-color: var(--check-fail);
+}
+
+#wrapper {
+    position: relative;
+    /*background:#333;*/
+    height: 100%;
+}
+
+.profile-main-loader {
+    left: 50% !important;
+    margin-left: -100px;
+    /* position: fixed !important; */
+	position: absolute;
+    top: 50% !important;
+    margin-top: -100px;
+    width: 45px;
+    z-index: 9000 !important;
+}
+
+.profile-main-loader .loader {
+    position: relative;
+    margin: 0px auto;
+    width: 200px;
+    height: 200px;
+}
+
+.profile-main-loader .loader:before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+}
+
+.circular-loader {
+    -webkit-animation: rotate 1.5s linear infinite;
+    animation: rotate 1.5s linear infinite;
+    height: 100%;
+    -webkit-transform-origin: center center;
+    -ms-transform-origin: center center;
+    transform-origin: center center;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: auto;
+}
+
+.circular-loader.pass, .circular-loader.fail {
+    -webkit-animation: rotate 1.5s linear infinite;
+    animation: rotate 1.5s linear infinite;
+}
+
+.loader-path {
+    stroke-dasharray: 150, 300;
+    stroke-dashoffset: 120;
+    stroke-linecap: round;
+}
+
+.loader-path.pass {
+    transition: 2s ease;
+    stroke-dasharray: 150, 300;
+    stroke-dashoffset: 0;
+    stroke: var(--spinner-success-color);
+    animation-iteration-count: 20;
+}
+
+.loader-path.fail {
+    transition: 2s ease;
+    stroke-dasharray: 150, 300;
+    stroke-dashoffset: 0;
+    stroke: var(--spinner-fail-color);
+    animation-iteration-count: 2;
+}
+
+@-webkit-keyframes rotate {
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rotate {
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
