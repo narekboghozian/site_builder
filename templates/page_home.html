@@ -1,33 +1,40 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-	<head>
-		<meta name="robots" content="noindex">
-		<meta charset="utf-8">
-		<title>NarekB</title>
-		<link rel="alternate" type="application/rss+xml" href="/rss" title="Your title">
-		<link rel="stylesheet" href="/css/main.css">
-	</head>
-	<body>
-		<article>
-			<h1 id="home-title">> Welcome </h1>
-			<p class="home-info">
-				I'm Narek. I'm an engineer currently living in San Diego, CA.
-			</p>
-			<p class="home-info">
-				I build projects and post some of them here, along with other things I find useful or interesting.
-			</p>
-			<p class="home-info italic">
-				Note: I am still adding previous projects to this website so many articles are currently incomplete or missing.
-			</p>
-			<div class="home-info home-info-links">
-				<a href="/contact/" class="visible_link">Contact&nbspPage</a>
-				<a href="/rss.xml" class="visible_link">RSS&nbspFeed</a>
-			</div>
-			{entry}
-		</article>
 
-		<p class="buildwith">
-			Built with <a href="/projects/site_builder.html" class="visible_link">Static&nbspSite&nbspGenerator</a>, a tool I wrote in Python.
+<head>
+	<meta name="robots" content="noindex">
+	<meta charset="utf-8">
+	<title>NarekB</title>
+	<link rel="alternate" type="application/rss+xml" href="/rss" title="Your title">
+	<link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+	<article>
+		<h1 id="home-title">> Welcome </h1>
+		<p class="home-info">
+			I'm Narek. I'm an engineer currently living in San Diego, CA.
 		</p>
-	</body>
+		<p class="home-info">
+			I build projects and post some of them here, along with other things I find useful or interesting.
+		</p>
+		<p class="home-info italic">
+			Note: I am still adding previous projects to this website so many articles are currently incomplete or missing.
+		</p>
+		<div class="home-info home-info-links">
+			<a href="/contact/" class="visible_link">Contact&nbspPage</a>
+			<!-- <a href="/rss.xml" class="visible_link">RSS&nbspFeed</a> -->
+		</div>
+		{entry}
+	</article>
+
+	<div class="buildwith-container">
+		<div class="buildwith">
+			<p class="buildwith">
+				Built with <a href="/projects/site_builder.html" class="visible_link">Static&nbspSite&nbspGenerator</a>, a tool I wrote in Python.
+			</p>
+		</div>
+	</div>
+</body>
+
 </html>

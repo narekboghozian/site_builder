@@ -2,6 +2,7 @@
 from modules.make_breadcrumbs import make_breadcrumbs
 from datetime import datetime as dt
 import xml.etree.ElementTree as ET
+from modules.scan_notes import ScanNotes
 from pathlib import Path
 import markdown
 import json
@@ -174,7 +175,7 @@ class Entry(ObjectBase):
 			metadata['link'] = self.__make_link(html=True)
 		metadata['type'] = self.__get_type()
 		metadata['category'] = self.__get_category()
-		metadata['monthyear'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("%b&nbsp%Y")
+		metadata['monthyear'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("&nbsp&nbsp&nbsp%b&nbsp%Y")
 		metadata['timestamp'] = int(dt.strptime(metadata['date'], "%m.%d.%Y").timestamp())
 		metadata['pubDate'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("%a, %d %b %Y %H:%M:%S %z")
 		self.meta = metadata
@@ -482,7 +483,7 @@ class Category(ObjectBase):
 
 
 class Website(ObjectBase):
-	def __init__(self, source = "src/", build = "build/", clear = False):
+	def __init__(self, source = "src/", build = "build/", clear = False, apnotes = False):
 		self.source, self.build_dir = (source, build)
 		self.root = source
 		self.categories = []
@@ -522,6 +523,12 @@ class Website(ObjectBase):
 
 		files = self.__get_files()
 		entries = []
+		# if apnotes is not False:
+		# 	dirs = ['']
+		# 	folders = ['Reports']
+		# 	notes = ScanNotes(folders)
+
+
 		for file in files:
 			entries.append(Entry(file, build_dir=self.build_dir))
 
@@ -581,9 +588,10 @@ class Website(ObjectBase):
 
 	def __build_css(self):
 
-		css_path = 'css/main.css'
-		css = open(css_path, 'r').read()
-		self.write_to_file(css, css_path)
+		css_paths = ['css/main.css', 'css/contact.css']
+		for item in css_paths:
+			css = open(item, 'r').read()
+			self.write_to_file(css, item)
 
 	def __build_assets(self):
 

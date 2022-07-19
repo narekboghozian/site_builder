@@ -23,8 +23,8 @@ class Form {
 		this.previously_validated = false;
 		this.editing = true;
 		this.xhr_timeout = 10000 // In ms
-		this.num_retries = 4;
-		this.retry_delay = 2000;
+		this.num_retries = 16;
+		this.retry_delay = 500;
 		this.check_cache();
 		this.get_inputs();
 		this.initialize_submit_button();
@@ -297,22 +297,32 @@ class Form {
 				ring.classList.add('visible');
 				let ringg = document.getElementsByClassName('circular-loader')[0]
 				ringg.classList.add('visible');
+				ringg.classList.remove('inactive');
 				let contact_status_container = document.getElementById('contact-status-container');
 				console.log(contact_status_container);
 				contact_status_container.classList.add('visible');
+				contact_status_container.classList.remove('inactive');
 				let mesg = document.getElementById('contact-status-message');
-				mesg.innerHTML = 'Sending&nbspMessage'
+				mesg.innerHTML = 'Sending&nbspMessage';
 			},
 			'sent': function() {
 				let ring = document.getElementsByClassName('loader-path')[0]
 				ring.classList.add('pass');
 				let ringg = document.getElementsByClassName('circular-loader')[0]
 				ringg.classList.add('pass');
+				ringg.classList.remove('inactive');
 				let ringgg = document.getElementsByClassName('checkmark')[0]
 				ringgg.classList.add('pass');
 				let mesg = document.getElementById('contact-status-message');
-				mesg.innerHTML = 'Message&nbspSent'
+				setTimeout(function () {
+					mesg.innerHTML = 'Message&nbspSent'
+					mesg.classList.add('pass');
+				}, 500);
 				let em = document.getElementById('email_input');
+				em.style.display = 'none';
+				let emm = document.getElementById('message_input');
+				em.style.display = 'none';
+				let emmm = document.getElementById('name_input');
 				em.style.display = 'none';
 				setTimeout(function () {
 					inp.initialize_submit_button('go_home');
@@ -323,10 +333,14 @@ class Form {
 				ring.classList.add('fail');
 				let ringg = document.getElementsByClassName('circular-loader')[0]
 				ringg.classList.add('fail');
+				ringg.classList.remove('inactive');
 				let ringggg = document.getElementsByClassName('alert-sign')[0]
 				ringggg.classList.add('fail');
 				let mesg = document.getElementById('contact-status-message');
-				mesg.innerHTML = 'Message&nbspFailed to&nbspSend'
+				setTimeout(function () {
+					mesg.innerHTML = 'Message&nbspFailed to&nbspSend';
+					mesg.classList.add('fail');
+				}, 500);
 				let em = document.getElementById('email_input');
 				em.style.display = 'none';
 				inp.initialize_submit_button('reset');
@@ -338,6 +352,7 @@ class Form {
 				let contact_status_container = document.getElementById('contact-status-container');
 				console.log(contact_status_container);
 				contact_status_container.classList.remove('visible');
+				contact_status_container.classList.add('inactive');
 				let rng = document.getElementsByClassName('loader-path')[0]
 				rng.classList.remove('fail');
 				rng.classList.remove('pass');
@@ -347,6 +362,7 @@ class Form {
 				ringg.classList.remove('visible');
 				ringg.classList.remove('fail');
 				ringg.classList.remove('pass');
+				ringg.classList.add('inactive');
 				let form = document.getElementById('contact-form');
 				form.classList.remove('hidden');
 				let ringgg = document.getElementsByClassName('checkmark')[0]
@@ -355,6 +371,8 @@ class Form {
 				ringggg.classList.remove('fail');
 				let mesg = document.getElementById('contact-status-message');
 				mesg.innerHTML = ''
+				mesg.classList.remove('pass');
+				mesg.classList.remove('fail');
 				for (var i = 0; i < Object.keys(inp.inputs).length; i++) {
 					let input = inp.inputs[Object.keys(inp.inputs)[i]]['object'];
 					input.classList.remove('disabled');
@@ -407,9 +425,7 @@ class Form {
 		};
 		xhr.ontimeout = function(e) {
 			if (tries_left > 0) {
-				setTimeout(function () {
-					inp.send_request(passed, failed, tries_left = tries_left - 1);
-				}, 2000);
+				retry_send_request(tries_left)
 			} else {
 				failed();
 			}
@@ -454,7 +470,7 @@ class Form {
 			hi('passed');
 			setTimeout(function () {
 				inp.update_screen('sent');
-			}, 500);
+			}, 100);
 			bye('passed');
 		}
 		function failed() {
@@ -464,7 +480,7 @@ class Form {
 				// setTimeout(function () {
 				// 	inp.update_screen('reset');
 				// }, 2000);
-			}, 500);
+			}, 100);
 			bye('failed');
 		}
 		let is_editing = inp.editing;

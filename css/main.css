@@ -8,11 +8,13 @@ Red accent color: #CA0C13
 /* Variables */
 :root {
     --max-body-width: 1000px;
+	--min-html-width: 300px;
     --article-margin: 2rem;
+	--built-with-height: 4rem;
     /* --article-margin: 0; */
     --text-spacing: 1rem;
     --section-spacing: 3rem;
-    --post-spacing: 1.5rem;
+    --post-spacing: 1rem;
     --text-indent: 1rem;
     --h1-size: 2.5rem;
     --h2-size: 2rem;
@@ -33,6 +35,7 @@ Red accent color: #CA0C13
 
 :root {
     --text-color: white;
+	--text-color-faded: #bbb;
     --bg-color: black;
     --bg-color-post: #111;
     --bg-color-post-hover: #222;
@@ -60,8 +63,8 @@ Red accent color: #CA0C13
     font-family: Helvetica, sans-serif;
     background-color: inherit;
     color: inherit;
-    -webkit-text-size-adjust: 250%;
-    text-size-adjust: 250%;
+    -webkit-text-size-adjust: 300%;
+    text-size-adjust: 300%;
     font-weight: 200;
     color: inherit;
     background-color: inherit;
@@ -72,10 +75,10 @@ Red accent color: #CA0C13
 html {
     padding: 0 var(--article-margin) 0;
     background-color: var(--bg-color);
-    font-size: 16px;
+    font-size: 12px;
     color: var(--text-color);
-    min-height: 100vh;
-    min-width: 300px;
+    min-height: 100%;
+    min-width: var(--min-html-width);
     overflow-x: scroll;
     -ms-overflow-style: none;
     /* IE and Edge */
@@ -91,6 +94,7 @@ body {
     margin: 0 auto 0;
     max-width: var(--max-body-width);
     padding-top: 2rem;
+	min-height: 100%;
 }
 
 article {
@@ -222,6 +226,10 @@ ul.breadcrumb>li:last-child a {
     justify-content: space-between;
 }
 
+.post-desc {
+	color: var(--text-color-faded);
+}
+
 .post-entry:hover {
     background-color: var(--bg-color-post-hover);
 }
@@ -341,10 +349,23 @@ div.small_thumbnail {
     font-style: italic;
 }
 
-.buildwith {
+div.buildwith {
     text-align: center;
-    margin-top: 10rem;
-    margin-bottom: 5rem;
+    /* margin-top: 10rem; */
+    /* margin-bottom: 5rem; */
+	position: absolute;
+	width: calc(100%);
+	min-width: var(--min-html-width);
+	padding: 4rem 0 4rem;
+	margin: 0;
+	/* bottom: var(--built-with-height); */
+	background-color: transparent;
+	display: block;
+}
+.buildwith-container{
+	position: relative;
+	width: 100%;
+	display: inline-block;
 }
 
 pre {

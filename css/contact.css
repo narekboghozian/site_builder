@@ -21,7 +21,6 @@
     margin: auto;
     max-width: 30rem;
     border: none;
-	margin-top: -60px;
 }
 
 #contact-form.hidden {
@@ -70,6 +69,10 @@
     /* visibility: hidden; */
     opacity: 0;
     transition: 0.3s ease-out;
+	max-height: 0;
+	margin-top: 0;
+	margin-bottom: 0;
+	transition: 0s;
 }
 
 .contact-name {
@@ -131,9 +134,9 @@ div.contact-status {
     width: var(--contact-loading-animation-size);
     height: var(--contact-loading-animation-size);
     margin: auto;
-    position: absolute;
+    /* position: absolute;
     top: calc(100vh / 2 - var(--contact-loading-animation-size) / 2);
-    right: calc(100% / 2 - var(--contact-loading-animation-size) / 2);
+    right: calc(100% / 2 - var(--contact-loading-animation-size) / 2); */
     background: none;
 }
 
@@ -143,13 +146,15 @@ svg.contact-status {
 }
 
 #contact-status-container {
+	max-height: 0;
     visibility: hidden;
     opacity: 0;
-    transition: 0.3s ease-in;
-    transition-delay: 0.3s;
+    /* transition: 0.3s ease-in; */
+    transition-delay: 0s;
 }
 
 #contact-status-container.visible {
+	max-height: 10000px;
     visibility: visible;
     opacity: 1;
     /* transition: all 2s ease-in;
@@ -198,6 +203,16 @@ input:focus {
 	text-align: center;
 
 }
+#contact-status-message.pass {
+	color: var(--check-pass);
+	transition: color 0.5s ease-in-out;
+	/* transition-delay: 0.3s; */
+}
+#contact-status-message.fail {
+	color: var(--check-fail);
+	transition: color 0.5s ease-in-out;
+	/* transition-delay: 0.3s; */
+}
 
 .svg-box {
     display: inline-block;
@@ -206,8 +221,8 @@ input:focus {
 }
 
 :root {
-    --check-pass: #7CB342;
-    --check-fail: #FFC107;
+    /* --check-pass: #7CB342;
+    --check-fail: #FFC107; */
     /* red:  #FF6245 */
     --check-scaling: 1.8;
     --alert-scaling: 1.1;
@@ -385,15 +400,17 @@ input:focus {
     height: 100%;
 }
 
+
+
 .profile-main-loader {
-    left: 50% !important;
-    margin-left: -100px;
+    /* left: 50% !important; */
+    /* margin-left: -100px; */
     /* position: fixed !important; */
-	position: absolute;
-    top: 50% !important;
-    margin-top: -100px;
+	/* position: absolute; */
+    /* top: 1.5rem !important; */
+    /* margin-top: -100px; */
     width: 45px;
-    z-index: 9000 !important;
+    /* z-index: 9000 !important; */
 }
 
 .profile-main-loader .loader {
@@ -405,10 +422,15 @@ input:focus {
 
 .profile-main-loader .loader:before {
     content: '';
-    display: block;
     padding-top: 100%;
 }
 
+.contact_status {
+	display: block;
+}
+.contact-status-container.inactive {
+	display: none!important;
+}
 .circular-loader {
     -webkit-animation: rotate 1.5s linear infinite;
     animation: rotate 1.5s linear infinite;
@@ -421,6 +443,10 @@ input:focus {
     top: 0;
     left: 0;
     margin: auto;
+}
+
+.circular-loader.inactive {
+	display: none;
 }
 
 .circular-loader.pass, .circular-loader.fail {
