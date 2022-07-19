@@ -295,7 +295,7 @@ class Form {
 				// form.classList.add('hidden');
 				let ring = document.getElementsByClassName('profile-main-loader')[0]
 				ring.classList.add('visible');
-				let ringg = document.getElementsByClassName('circular-loader')[0]
+				let ringg = document.getElementsByClassName('circular-loader')[0];
 				ringg.classList.add('visible');
 				ringg.classList.remove('inactive');
 				let contact_status_container = document.getElementById('contact-status-container');

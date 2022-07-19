@@ -599,6 +599,10 @@ class Website(ObjectBase):
 		new_path = self.build_dir + images_path
 		os.system('cp -r %s %s'%(images_path, new_path))
 
+		js_path = 'js/'
+		new_path = self.build_dir + js_path
+		os.system('cp -r %s %s'%(js_path, new_path))
+
 	def __build_contact(self):
 
 		# template = self.get_template('page', 'contact')
