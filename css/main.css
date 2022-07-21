@@ -16,11 +16,11 @@ Red accent color: #CA0C13
     --section-spacing: 3rem;
     --post-spacing: 1rem;
     --text-indent: 1rem;
-    --h1-size: 2.8rem;
-    --h2-size: 2.2rem;
+    --h1-size: 3rem;
+    --h2-size: 2.5rem;
     --h3-size: 1.8rem;
     --h4-size: 1.5rem;
-    --p-size: 1.4rem;
+    --p-size: 1.2rem;
     --h1-weight: 400;
     --h2-weight: 200;
     --h3-weight: 200;
@@ -128,6 +128,10 @@ h1 {
     text-align: center;
 }
 
+#home-title {
+	text-align: left;
+}
+
 h2 {
     font-weight: var(--h2-weight);
     margin: 0px 0px var(--section-spacing);
@@ -177,6 +181,7 @@ textarea {
 ul, ol {
     padding-left: calc(var(--text-indent) + 1.4rem);
     margin: var(--text-spacing) 0px;
+	font-size: var(--p-size);
 }
 
 ol ol, ol ul, ul ol, ul ul {
@@ -442,6 +447,12 @@ embed[type="application/pdf"] {
 
 div.toc>h4 {
     margin: 0;
+	/* text-decoration: underline;
+     text-underline-offset: 0.25rem; */
+
+}
+div.toc>h4::after {
+	content:
 }
 
 div.toc {
@@ -476,4 +487,5 @@ prefix {
     padding-right: 1rem;
     font-size: var(--p-size);
     font-size: 1rem;
+	font-family: monospace;
 }
