@@ -9,6 +9,8 @@ import json
 import os
 
 
+
+
 class ObjectBase:
 	def get_template(self, type, style):
 		"""Get or make the template based on params"""
@@ -16,11 +18,16 @@ class ObjectBase:
 		self.template_types = { # default is the last in each array
 			'entry'	: [
 				# 'big_thumb',
+				'toc',
+				'toc_wrapper',
+				'toc_prefix',
+				'date_subtitle',
 				'small_thumbnail',
 				'minimal',
 				'basic'
 			],
 			'container':[
+				'toc',
 				'basic'
 			],
 			'page'	: [
@@ -60,6 +67,102 @@ class ObjectBase:
 		output_file.parent.mkdir(exist_ok=True, parents=True)
 		output_file.write_text(file_content)
 
+
+class TOC_Node(ObjectBase):
+	def __init__(self, raw_entry='', depth=0, root=False, repeated=False):
+		self.raw = raw_entry
+		self.depth = depth
+		self.__parent = None
+		self.__children = []
+		self.__child_number = None
+		self.__root = root
+		if root:
+			self.raw = "__ROOT__"
+		self.repeated = repeated
+
+	def __build_header_id(self):
+		'''Create the html id for this TOC item, used for links'''
+
+		remove = '''!()-[]{};:'"\,<>./?@#$%^&*~'''
+		newline_id = self.raw.lower()
+		for i in remove:
+			newline_id = newline_id.replace(i, '')
+		newline_id = newline_id.replace(' ', '-')
+		while('--' in newline_id):
+			newline_id = newline_id.replace('--', '-')
+		if self.repeated:
+			newline_id += "_" + str(self.repeated)
+		return newline_id
+
+	def header_id(self):
+		return self.__build_header_id()
+
+	def __build_prefix(self):
+		numbers = []
+		node = self
+		for i in range(self.depth):
+			numbers.append(node.child_number() + 1)
+			node = node.get_parent()
+		numbers = numbers[::-1]
+		return numbers
+
+	def __build_header(self):
+		'''Return the header with a tiered number in front'''
+
+		numbers = self.__build_prefix()
+		prefix = ".".join([str(number) for number in numbers])
+		toc_prefix_template = self.get_template('entry', 'toc_prefix')
+		prefix_params =  {
+			'prefix': prefix,
+			'header': self.raw
+		}
+		return self.fill_template(toc_prefix_template,prefix_params)
+
+	def root(self):
+		return self.__root
+
+	def add_child(self, new_child):
+		assert type(new_child) == type(self), 'TOC_Node.add_child(): Wrong type'
+		self.__children.append(new_child)
+		return len(self.__children) - 1
+
+	def get_children(self):
+		return self.__children
+
+	def child_number(self):
+		return self.__child_number
+
+	def set_parent(self, parent):
+		assert type(parent) == type(self), 'TOC_Node.set_parent(): Wrong type'
+		self.__parent = parent
+		# Set this node as the child of the new parent
+		self.__child_number = parent.add_child(self)
+		print("D-%s: Parent of %s is %s"%(self.depth, self.raw, self.__parent.raw))
+
+	def get_parent(self):
+		return self.__parent
+
+	def build(self):
+		children = "\n".join([child.build() for child in self.__children])
+		if self.__root:
+			root_template = self.get_template('container', 'toc')
+			node_params = {'content': children}
+			return self.fill_template(root_template, node_params)
+		elif len(children) > 0:
+			wrap_template = self.get_template('entry', 'toc_wrapper')
+			node_params = {
+				'section-label': self.__build_header(),
+				'section-id': self.__build_header_id(),
+				'content': children,
+			}
+			return self.fill_template(wrap_template, node_params)
+		else:
+			node_template = self.get_template('entry', 'toc')
+			node_params = {
+				'section-label': self.__build_header(),
+				'section-id': self.__build_header_id()
+			}
+			return self.fill_template(node_template, node_params)
 
 class Entry(ObjectBase):
 	def __init__ (self, filename, root = '/', build_dir = "build/"):
@@ -155,7 +258,8 @@ class Entry(ObjectBase):
 		]
 		metadata = {}
 		lines = self.raw_meta.split('\n')
-		for line in lines:
+		for rawline in lines:
+			line = rawline.rstrip(' ')
 			if len(line) >3 and line[0] == '/' and line[0:2] != '//':
 				uncomment = line.split(' //')[0].split()
 				cmd = uncomment[0][1:]
@@ -165,6 +269,8 @@ class Entry(ObjectBase):
 				metadata[cmd] = " ".join(uncomment[1:])
 				if cmd in tf_commands: # set to true if included at all
 					metadata[cmd] = True
+		if 'toc' not in metadata:
+			metadata['toc'] = False
 		for tf_cmd in tf_commands: # If wasnt specified, mark false
 			if tf_cmd not in metadata:
 				metadata[tf_cmd] = False
@@ -178,17 +284,21 @@ class Entry(ObjectBase):
 		metadata['monthyear'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("&nbsp&nbsp&nbsp%b&nbsp%Y")
 		metadata['timestamp'] = int(dt.strptime(metadata['date'], "%m.%d.%Y").timestamp())
 		metadata['pubDate'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("%a, %d %b %Y %H:%M:%S %z")
+		metadata['date_subtitle'] = dt.strptime(metadata['date'], "%m.%d.%Y").strftime("%b %d, %Y")
 		self.meta = metadata
 
 	def __process_content(self):
-		html = markdown.markdown(self.raw_html,
+		# raw_html = self.raw_html.replace('/','/<wbr>')
+		raw_html = self.raw_html
+		html = markdown.markdown(raw_html,
 			extensions=[
 				'tables',
 				'attr_list',
 				'toc',
 				'markdown_checklist.extension'
 				])
-		self.html = html.replace('<a href=', '<a target="_blank" href=')
+		html = html.replace('<a href=', '<a target="_blank" href=')
+		self.html = html
 
 	def __process_entry(self):
 		"""Split into metedata and html content"""
@@ -196,6 +306,78 @@ class Entry(ObjectBase):
 		self.__split_input(self.__open_markdown_file())
 		self.__process_metadata()
 		self.__process_content()
+
+	def __build_toc(self, depth):
+		'''
+		Use nodes/linked lists to generate the heirarchy as a tree
+		Keep the list in an array that has the same sorting order
+		If a previous node has...
+			- lower depth: set parent of this node to prev node
+			- same depth: set parent of this node to parent of prev node
+			- higher depth: go up the linked lists until you find a node of same depth, then, add that to whatever the parent of that is
+ 		Then, with the complete tree, use a member function to build each of those headers into html using a template, leaving a formatting space for any child content
+		Recursively flatten it using a member function
+		'''
+		depth = int(depth)
+		assert depth >= 1 and depth < 6, 'Invalid depth for Entry.__build_toc()'
+		depth = int(depth) + 2
+		toc_template = self.get_template('container', 'toc')
+		entries_template = self.get_template('entry', 'toc')
+		sub_tree_template = self.get_template('entry', 'toc_wrapper')
+		entries = []
+
+		# Generate the primary array of bare headers
+		header_pattern = '#'
+		for line in self.raw_html.split('\n'):
+			if any(header_pattern * dep + ' ' in line[0:depth] \
+				for dep in range(2, depth)):
+				raw_entry = " ".join(line.split(' ')[1:])
+				entry_depth = line.split(' ')[0].count(header_pattern) - 1
+				entries.append((raw_entry, entry_depth))
+		if len(entries) == 0:
+			self.toc = ''
+			return
+			# Replace those with a node object that stores the header
+		nodes = []
+		node_counter = {}
+		for entry in entries:
+			new_node = TOC_Node(entry[0], entry[1])
+			if not new_node.header_id() in node_counter:
+				node_counter[new_node.header_id()] = 0
+			else:
+				node_counter[new_node.header_id()] += 1
+				new_node.repeated = node_counter[new_node.header_id()]
+			nodes.append(new_node)
+			# print(new_node.header_id())
+
+		# Process through the array to link each member to their parents
+		root_node = TOC_Node(root=True)
+		nodes[0].set_parent(root_node)
+		for i, node in enumerate(nodes[1:]):
+			prev_node = nodes[i]
+			if node.depth > prev_node.depth:
+				parent = prev_node
+			elif node.depth == prev_node.depth:
+				parent = prev_node.get_parent()
+			else:
+				# print('')
+				diff = prev_node.depth - node.depth + 1
+				parent = prev_node
+				for j in range(diff):
+					parent = parent.get_parent()
+			node.set_parent(parent)
+
+		# Recursively flatten everything
+		self.toc = root_node.build()
+
+	def __build_date(self):
+
+		date_template = self.get_template('entry', 'date_subtitle')
+		date_params = {
+			'date': self.meta['date_subtitle']
+		}
+		date = self.fill_template(date_template, date_params)
+		self.date_subtitle = date
 
 	def __format_entry(self):
 		"""Input here is a json"""
@@ -233,7 +415,17 @@ class Entry(ObjectBase):
 				name = name.replace(' ', '&nbsp')
 				path.append((name, link))
 			template = template.replace(crumbs_id, make_breadcrumbs(path))
-		formatted = template.replace("{entry}", self.html)
+		if self.meta['toc']:
+			self.__build_toc(self.meta['toc'])
+			self.html = self.html.replace('</h1>', '</h1>\n%s'%self.toc)
+		self.__build_date()
+		self.html = self.html.replace('</h1>', '</h1>\n%s'%self.date_subtitle)
+		params = {
+			'entry': self.html,
+			'title': self.meta['title']
+		}
+		formatted = self.fill_template(template, params)
+		# formatted = template.replace("{entry}", self.html)
 
 		return formatted
 
@@ -246,7 +438,6 @@ class Entry(ObjectBase):
 		file_name = self.meta['link']
 		if '.html' != file_name[-len('.html'):]:
 			file_name += '.html'
-			print(file_name)
 		self.write_to_file(formatted, file_name)
 
 	def equals(self, cmp):
@@ -393,7 +584,9 @@ class Category(ObjectBase):
 
 		template = self.get_template('container', style)
 		if add_header:
-			header = self.header
+			head = '<h2><a href="{link}" class="post_section">{header}</a></h2>'
+			header = head.replace('{link}', "/"+self.__make_link(output=True))
+			header = header.replace('{header}', self.header)
 		else:
 			header = ''
 		more = ""
@@ -435,10 +628,10 @@ class Category(ObjectBase):
 			breadcrumbs.append((self.categories_headers[item], "/"+"/".join(site_path[:i]) + self.category))
 		params = {
 			'title': self.header,
-			'entry': self.__make_section(add_header=True),
+			'entry': self.__make_section(add_header=False),
 			'breadcrumbs': make_breadcrumbs(breadcrumbs),
 			# 'section': self.header
-			'section': ''
+			'section': self.header
 			}
 		category_page_template = self.get_template('page', 'category')
 		page = self.fill_template(category_page_template, params)
