@@ -137,7 +137,7 @@ class TOC_Node(ObjectBase):
 		self.__parent = parent
 		# Set this node as the child of the new parent
 		self.__child_number = parent.add_child(self)
-		print("D-%s: Parent of %s is %s"%(self.depth, self.raw, self.__parent.raw))
+
 
 	def get_parent(self):
 		return self.__parent
