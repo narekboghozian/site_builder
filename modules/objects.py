@@ -83,7 +83,7 @@ class TOC_Node(ObjectBase):
 	def __build_header_id(self):
 		'''Create the html id for this TOC item, used for links'''
 
-		remove = '''!()-[]{};:'"\,<>./?@#$%^&*~'''
+		remove = '''!()[]{};:'"\,<>./?@#$%^&*~'''
 		newline_id = self.raw.lower()
 		for i in remove:
 			newline_id = newline_id.replace(i, '')

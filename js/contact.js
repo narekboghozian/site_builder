@@ -179,29 +179,25 @@ class Form {
 		}
 		let validators = {
 			'email': function(value) {
-				return true;
 				let mailformat = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-				if (value.match(mailformat) != null || limit(value, 'else')) {
+				if (value.match(mailformat) != null) {
 					return true;
 				}
 				return false;
 			},
 			'name': function(value) {
-				return true;
 				if (limit(value, 'name')) {
 					return true;
 				}
 				return false;
 			},
 			'message': function(value) {
-				return true;
 				if (limit(value, 'message')) {
 					return true;
 				}
 				return false;
 			},
 			'else': function(value) {
-				return true;
 				if (limit(value, 'else')) {
 					return true;
 				}
@@ -226,7 +222,6 @@ class Form {
 		}
 		this.set_input_states();
 		this.previously_validated = true;
-		console.log(this.inputs);
 		if (has_invalid) {
 			this.update_button('invalid');
 			bye('validate_inputs(f)');
@@ -280,13 +275,11 @@ class Form {
 
 		hi('update_screen');
 
-		console.log(func);
 		let funcs = {
 			'sending': function() {
 				inp.update_button('disable');
 				for (var i = 0; i < Object.keys(inp.inputs).length; i++) {
 					let input = inp.inputs[Object.keys(inp.inputs)[i]]['object'];
-					console.log(input);
 					input.classList.add('disabled');
 					input.classList.add('noselect');
 					input.disabled = true;
@@ -299,7 +292,6 @@ class Form {
 				ringg.classList.add('visible');
 				ringg.classList.remove('inactive');
 				let contact_status_container = document.getElementById('contact-status-container');
-				console.log(contact_status_container);
 				contact_status_container.classList.add('visible');
 				contact_status_container.classList.remove('inactive');
 				let mesg = document.getElementById('contact-status-message');
@@ -350,7 +342,6 @@ class Form {
 				let em = document.getElementById('email_input');
 				em.style.display = 'block';
 				let contact_status_container = document.getElementById('contact-status-container');
-				console.log(contact_status_container);
 				contact_status_container.classList.remove('visible');
 				contact_status_container.classList.add('inactive');
 				let rng = document.getElementsByClassName('loader-path')[0]
@@ -394,7 +385,7 @@ class Form {
 
 		hi('send_request');
 		console.log(tries_left);
-		let url = 'https://l4les7jgafn2cqx5fsojf2oxbq0tvvnr.lambda-url.us-west-2.on.aws/test/path/hi'
+		let url = 'https://l4les7jgafn2cqx5fsojf2oxbq0tvvnr.lambda-url.us-west-2.on.aws'
 		const xhr = new XMLHttpRequest();
 		xhr.open("POST", url, true);
 		xhr.timeout = inp.xhr_timeout;
