@@ -215,6 +215,20 @@ class Citation(ObjectBase):
 		return '#bib-item-%s'%str(self.__place + 1)
 
 
+class Counter(ObjectBase):
+	def __init__(self, label, count=1):
+		self.__count = count
+		self.__label = label
+
+	def set(self, count):
+		self.__count = int(count)
+
+	def get(self):
+		num = self.__count
+		self.__count += 1
+		return num
+
+
 class Entry(ObjectBase):
 	def __init__ (self, filename, root = '/', build_dir = "build/"):
 		self.filename = filename
@@ -336,7 +350,22 @@ class Entry(ObjectBase):
 						items['label'],
 						items['name'],
 						items['link']
-					)
+						)
+				elif cmd == 'count':
+					items = {
+						'label': False,
+						'count': False
+					}
+					item_keys = list(items.keys())
+					for val, item in enumerate(list(re.finditer('{.*?}', " ".join(uncomment)))):
+						items[item_keys[val]] = item.group()[1:-1]
+					if 'count' not in metadata:
+						metadata['count']  = {}
+					metadata['count'][items['label']] = Counter(
+						items['label'],
+						items['name'],
+						items['link']
+						)
 				else:
 					metadata[cmd] = " ".join(uncomment[1:])
 				if cmd in tf_commands: # set to true if included at all
@@ -348,6 +377,8 @@ class Entry(ObjectBase):
 				metadata[tf_cmd] = False
 		if 'bib' not in metadata:
 			metadata['bib']  = False
+		if 'count' not in metadata:
+			metadata['count']  = {}
 		if 'thumbnail' not in metadata:
 			metadata['thumbnail'] = '/images/null.jpg'
 		metadata['filename'] = self.filename
@@ -364,6 +395,7 @@ class Entry(ObjectBase):
 	def __process_content(self):
 		# raw_html = self.raw_html.replace('/','/<wbr>')
 		self.__build_cites()
+		self.__build_counters()
 		raw_html = self.raw_html
 		html = markdown.markdown(raw_html,
 			extensions=[
@@ -506,6 +538,36 @@ class Entry(ObjectBase):
 				self.raw_html = repl.join(re.split(pattern, self.raw_html))
 				counter += 1
 		self.__build_bib()
+
+	def __build_counters(self):
+		'''Process the /cite tags like how latex does it'''
+
+		# Go through all patterns to find all types of cites
+		pattern = '\\\\value{\w+?.*?}{1}|\\\setcounter{\w+?.*?}{\d+?}{1}|\\\count{\w+?.*?}{1}'
+		match_dict = []
+		counters = list(re.finditer(pattern, self.raw_html))
+		for count in counters:
+			label = re.search('\w+?{\w+?.*?}', count.group()).group()
+			label = re.search('{{1}.+?}{1}', label).group()[1:-1]
+			if label not in match_dict:
+				match_dict.append(label)
+				if label not in self.meta['count']:
+					self.meta['count'][label] = Counter(label)
+				new_pattern = '\\\\value{'+label+'}{1}|\\\setcounter{'+label+'}{\d+?}{1}|\\\count{'+label+'}{1}'
+				splits = re.split(new_pattern, self.raw_html)
+				locs = list(re.finditer(new_pattern, self.raw_html))
+				new_html = ""
+				for i in range(len(splits) - 1):
+					loc = locs[i].group()
+					if 'setcounter' in loc:
+						val = re.search('}{\d+?}{1}', loc).group()[2:-1]
+						self.meta['count'][label].set(val)
+						cnt = ''
+					else: # Value
+						cnt = self.meta['count'][label].get()
+					new_html += str(splits[i]) + str(cnt)
+				new_html += str(splits[-1])
+				self.raw_html = new_html
 
 	def __format_entry(self):
 		"""Input here is a json"""
