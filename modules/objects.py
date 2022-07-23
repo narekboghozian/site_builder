@@ -7,6 +7,7 @@ from pathlib import Path
 import markdown
 import json
 import os
+import re
 
 
 
@@ -40,10 +41,10 @@ class ObjectBase:
 				'show_more_button'
 			]
 		}
-		assert type in self.template_types, "objects > ObjectBase > __get_template:\nInvalid type."
+		# assert type in self.template_types, "objects > ObjectBase > __get_template:\nInvalid type."
 		if style == False or style=='default':
 			style = self.template_types[type][-1]
-		assert style in self.template_types[type], "objects > ObjectBase > __get_template:\nInvalid style"
+		# assert style in self.template_types[type], "objects > ObjectBase > __get_template:\nInvalid style"
 		template_path = "templates/%s_%s.html"%(type, style)
 		template = open(template_path, 'r').read()
 
@@ -138,7 +139,6 @@ class TOC_Node(ObjectBase):
 		# Set this node as the child of the new parent
 		self.__child_number = parent.add_child(self)
 
-
 	def get_parent(self):
 		return self.__parent
 
@@ -163,6 +163,57 @@ class TOC_Node(ObjectBase):
 				'section-id': self.__build_header_id()
 			}
 			return self.fill_template(node_template, node_params)
+
+
+class Citation(ObjectBase):
+	def __init__(self, label, name, link):
+		self.__label = label.strip()
+		if type(name) == str:
+			self.__name = name.strip()
+		elif type(name) == list:
+			self.__name = " ".join(name).strip()
+		else:
+			self.__name = False
+		if type(link) == str:
+			self.__link = link.strip()
+		else:
+			self.__link = False
+		self.__place = None # Place within the order that cites are mentioned
+
+	def match(self):
+		return "\cite{" + self.__label + "}"
+
+	def make_ref(self):
+		# out = "[%s - %s](%s)"%(self.__name, self.__link, self.__link)
+		template = self.get_template('entry', 'bib_basic')
+		if self.__link and self.__name:
+			content = "%s: <br><br>&nbsp&nbsp&nbsp%s"%(self.__name, self.__link)
+		elif self.__link:
+			content = self.__link
+		else:
+			content = self.__name
+		id = 'bib-item-%s'%str(self.__place)
+		link = self.get_id()
+		if self.__link:
+			link = self.__link
+		params = {
+			'link': link,
+			'content': content,
+			'id': id
+		}
+		out = self.fill_template(template, params)
+		return out
+
+	def set_place(self, place, force=False):
+		if force or self.__place == None:
+			self.__place = place
+
+	def link(self):
+		return self.__link
+
+	def get_id(self):
+		return '#bib-item-%s'%str(self.__place + 1)
+
 
 class Entry(ObjectBase):
 	def __init__ (self, filename, root = '/', build_dir = "build/"):
@@ -246,7 +297,8 @@ class Entry(ObjectBase):
 			'thumbnail',
 			'toc',
 			'pin',
-			'home'
+			'home',
+			'bib'
 		]
 		deprecated_inputs = [
 			'link',
@@ -266,7 +318,27 @@ class Entry(ObjectBase):
 				assert (cmd in required_inputs or cmd in optional_inputs or cmd in deprecated_inputs), "Invalid input"
 				# if cmd in deprecated_inputs:
 					# print("Warning: %s is a deprecated command. Found in %s"%(cmd, self.filename))
-				metadata[cmd] = " ".join(uncomment[1:])
+				if cmd == 'bib':
+					# label = uncomment[1]
+					# name = uncomment[2:-1]
+					# url = uncomment[-1]
+					items = {
+						'name': False,
+						'link': False,
+						'label': False
+					}
+					item_keys = ['label', 'name', 'link']
+					for val, item in enumerate(list(re.finditer('{.*?}', " ".join(uncomment)))):
+						items[item_keys[val]] = item.group()[1:-1]
+					if 'bib' not in metadata:
+						metadata['bib']  = {}
+					metadata['bib'][items['label']] = Citation(
+						items['label'],
+						items['name'],
+						items['link']
+					)
+				else:
+					metadata[cmd] = " ".join(uncomment[1:])
 				if cmd in tf_commands: # set to true if included at all
 					metadata[cmd] = True
 		if 'toc' not in metadata:
@@ -274,6 +346,8 @@ class Entry(ObjectBase):
 		for tf_cmd in tf_commands: # If wasnt specified, mark false
 			if tf_cmd not in metadata:
 				metadata[tf_cmd] = False
+		if 'bib' not in metadata:
+			metadata['bib']  = False
 		if 'thumbnail' not in metadata:
 			metadata['thumbnail'] = '/images/null.jpg'
 		metadata['filename'] = self.filename
@@ -289,6 +363,7 @@ class Entry(ObjectBase):
 
 	def __process_content(self):
 		# raw_html = self.raw_html.replace('/','/<wbr>')
+		self.__build_cites()
 		raw_html = self.raw_html
 		html = markdown.markdown(raw_html,
 			extensions=[
@@ -334,9 +409,12 @@ class Entry(ObjectBase):
 				raw_entry = " ".join(line.split(' ')[1:])
 				entry_depth = line.split(' ')[0].count(header_pattern) - 1
 				entries.append((raw_entry, entry_depth))
+
 		if len(entries) == 0:
 			self.toc = ''
 			return
+		if self.meta['bib']:
+			entries.append(('References', 1))
 			# Replace those with a node object that stores the header
 		nodes = []
 		node_counter = {}
@@ -379,9 +457,59 @@ class Entry(ObjectBase):
 		date = self.fill_template(date_template, date_params)
 		self.date_subtitle = date
 
+	def __get_match_locations(self, match, data):
+		'''Find indicies of 'match' withing 'data'.'''
+
+		assert len(match) < len(data), 'Entry.__get_match_locations() > Match string must be smaller than input data'
+		locs = []
+		for i, letter in enumerate(data[:-len(match)]):
+			if match == data[i:i+len(match)]:
+				locs.append(i)
+		return locs
+
+	def __build_bib(self):
+		'''Build the bibliography at the end'''
+
+		if not self.meta['bib']:
+			self.bib = ''
+		else:
+			bib = self.meta['bib']
+			bib_html  = ''
+			for entry in bib:
+				bib_html += bib[entry].make_ref()
+			full_bib_template = self.get_template('container','bib')
+			bib_params = {
+				'content': bib_html
+			}
+			self.bib = self.fill_template(full_bib_template, bib_params)
+
+	def __build_cites(self):
+		'''Process the /cite tags like how latex does it'''
+
+		# Go through all patterns to find all types of cites
+		pattern = '\\\cite{.+?}'
+		match_dict = {}
+		cites = list(re.finditer(pattern, self.raw_html))
+		counter = 0
+		for cite in cites:
+			label = re.search('{.+?}', cite.group()).group()[1:-1]
+			if label not in match_dict:
+				match_dict[label] = counter
+				self.meta['bib'][label].set_place(counter)
+				pattern = '\\\cite{' + label + '}'
+				link = ''
+				# repl = '[['+str(counter+1)+']](%s)'%self.meta['bib'][label].get_id()
+				repl = '<a  href="%s">[%s]</a>'%(
+					self.meta['bib'][label].get_id(),
+					str(counter+1)
+					)
+				self.raw_html = repl.join(re.split(pattern, self.raw_html))
+				counter += 1
+		self.__build_bib()
+
 	def __format_entry(self):
 		"""Input here is a json"""
-		#
+
 		# if self.root[0] != '/':
 		# 	self.root = '/' + self.root
 		# template_type = 'article' # default
@@ -418,6 +546,10 @@ class Entry(ObjectBase):
 		if self.meta['toc']:
 			self.__build_toc(self.meta['toc'])
 			self.html = self.html.replace('</h1>', '</h1>\n%s'%self.toc)
+		if self.meta['bib'] is not False:
+			self.html += self.bib
+			# print('</article>' in self.html)
+			# print(self.html)
 		self.__build_date()
 		self.html = self.html.replace('</h1>', '</h1>\n%s'%self.date_subtitle)
 		params = {
